@@ -1,0 +1,71 @@
+# Rust build artifacts
+/target/
+**/*.rs.bk
+
+# Lockfiles - ignore all lockfiles
+Cargo.lock
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+poetry.lock
+
+# Secrets - NEVER commit these
+# Ignore all secret content but keep folder structure and templates
+secret/*
+!secret/readme.md
+!secret/*.template
+!secret/*.template.*
+!secret/*_template.*
+
+# Additional secret file patterns
+*.key
+*.pem
+*.token
+*_token.txt
+*_secret.txt
+
+# Temporary files (hyphen prefix pattern)
+# All files starting with hyphen are temporary
+-*
+.*/-*
+**/-*
+
+# Temporary documentation
+.workspace_migration.md
+
+# Model files (large, downloaded from HuggingFace)
+*.safetensors
+*.bin
+*.gguf
+*.pt
+*.pth
+
+# HuggingFace cache
+.cache/
+models/
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Test artifacts
+test-results/
+coverage/
+
+# Python (if scripts are added)
+__pycache__/
+*.py[cod]
+.pytest_cache/
+venv/
+.venv/

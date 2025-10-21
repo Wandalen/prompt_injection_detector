@@ -1,0 +1,64 @@
+[workspace]
+resolver = "2"
+members = [
+  "module/vllm_core",
+  "module/vllm_inferencer",
+  "module/vllm_server",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.70"
+authors = [
+  "Kostiantyn M. <wandalen@obox.systems>",
+]
+license = "MIT"
+
+[workspace.lints.rust]
+rust_2018_idioms = "warn"
+missing_docs = "warn"
+
+[workspace.lints.clippy]
+pedantic = "warn"
+
+[workspace.dependencies]
+# Internal workspace dependencies
+vllm_core = { version = "0.1.0", path = "module/vllm_core" }
+
+# ML Framework
+candle-core = "0.8"
+candle-nn = "0.8"
+candle-transformers = "0.8"
+
+# Model Loading
+hf-hub = "0.3"
+safetensors = "0.4"
+
+# Tokenization
+tokenizers = "0.15"
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Error Handling
+error_tools = { version = "0.35", features = ["full"] }
+
+# Secrets Management
+workspace_tools = "0.5.0"
+
+# HTTP Server
+axum = "0.7"
+tokio = { version = "1", features = ["full"] }
+tower = "0.4"
+tower-http = { version = "0.5", features = ["trace", "cors"] }
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1

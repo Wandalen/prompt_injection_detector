@@ -1,0 +1,34 @@
+[package]
+name = "vllm_inferencer"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "CLI interface for vLLM inference engine"
+repository = "https://github.com/your-org/vllm_inferencer"
+keywords = ["llm", "inference", "cli"]
+categories = ["command-line-utilities"]
+
+[lints]
+workspace = true
+
+[[bin]]
+name = "vllm_inferencer"
+path = "src/main.rs"
+
+[features]
+default = ["enabled"]
+enabled = []
+full = [
+  "enabled",
+  "vllm_core/full",
+  "dep:error_tools",
+]
+
+[dependencies]
+# Core library
+vllm_core = { workspace = true, optional = true }
+
+# Error Handling
+error_tools = { workspace = true, optional = true }
