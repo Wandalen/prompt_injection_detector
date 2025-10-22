@@ -145,6 +145,7 @@ cargo doc --open                  # Generate docs
 
 **Everything else:**
 - ❌ HTTP API (add later if CLI works)
+- ❌ Docker containers (https://github.com/vast-ai/base-image)
 - ❌ KV Cache (add later if needed)
 - ❌ Advanced sampling
 - ❌ Batching, streaming, monitoring
