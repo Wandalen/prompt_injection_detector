@@ -12,12 +12,20 @@ Load GPT-2 to GPU, generate text, celebrate. That's it.
 
 ## Status
 
-**Current:** Project skeleton created, ready for implementation
+**Current Phase:** Phase 0 Complete → Phase 1 Ready to Start
 
-**Single Milestone:** Prove It Works (3-5 days)
+**Phase 0: Foundation** ✅ COMPLETE
+- Workspace structure with 3 crates
+- Feature gating and crate distribution compliance
+- MIT license and proper configuration
+- Ready for implementation
+
+**Phase 1: Core Inference** (3-5 days) 🔄 READY
 - [ ] Day 1-2: Understand Candle API, get examples working
-- [ ] Day 3-4: Load GPT-2, make forward pass work
+- [ ] Day 3-4: Load Phi-1.5, make forward pass work
 - [ ] Day 5: Generate text, test, done!
+
+See [roadmap.md](./roadmap.md) for complete timeline.
 
 ## Quick Start
 
@@ -101,6 +109,7 @@ vllm_inferencer/
 
 ## Documentation
 
+- **[roadmap.md](./roadmap.md)** - Development roadmap and timeline
 - **[spec.md](./spec.md)** - Complete technical specification
 - **[decisions.md](./decisions.md)** - Auto-decision log
 - **[tests/readme.md](./tests/readme.md)** - Testing strategy and manual procedures
