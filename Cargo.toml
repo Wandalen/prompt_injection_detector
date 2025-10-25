@@ -1,9 +1,9 @@
 [workspace]
 resolver = "2"
 members = [
-  "module/vllm_core",
-  "module/vllm_inferencer",
-  "module/vllm_server",
+  "module/injection_core",
+  "module/injection_cli",
+  "module/injection_server",
 ]
 
 [workspace.package]
@@ -24,16 +24,16 @@ pedantic = "warn"
 
 [workspace.dependencies]
 # Internal workspace dependencies
-vllm_core = { version = "0.1.0", path = "module/vllm_core" }
+injection_core = { version = "0.1.0", path = "module/injection_core" }
 
-# ML Framework
-candle-core = "0.8"
-candle-nn = "0.8"
-candle-transformers = "0.8"
+# ML Framework - ONNX Runtime for fast inference
+ort = { version = "1.16", default-features = false, features = ["load-dynamic"] }
+
+# CLI Framework
+unilang = "0.30"
 
 # Model Loading
-hf-hub = "0.3"
-safetensors = "0.4"
+hf-hub = "0.4"
 
 # Tokenization
 tokenizers = "0.15"

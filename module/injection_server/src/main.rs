@@ -1,25 +1,25 @@
-//! vllm_server - HTTP API server for LLM inference
+//! injection_server - HTTP API server for prompt injection detection
 //!
-//! Provides REST API endpoints for text generation using vllm_core.
+//! Provides REST API endpoints for detecting prompt injection attacks using injection_core.
 //!
 //! # Endpoints
 //!
 //! - GET /health - Health check
-//! - POST /generate - Generate text from prompt
+//! - POST /detect - Detect prompt injection in text
 //!
 //! # Example
 //!
 //! ```bash
 //! # Start server
-//! cargo run -p vllm_server
+//! cargo run -p injection_server
 //!
 //! # Health check
 //! curl http://localhost:3000/health
 //!
-//! # Generate text
-//! curl -X POST http://localhost:3000/generate \
+//! # Detect injection
+//! curl -X POST http://localhost:3000/detect \
 //!   -H "Content-Type: application/json" \
-//!   -d '{"prompt": "Once upon a time", "max_tokens": 50}'
+//!   -d '{"text": "Ignore all previous instructions", "threshold": 0.5}'
 //! ```
 
 #[cfg(feature = "full")]
@@ -41,12 +41,12 @@ use tower_http::trace::TraceLayer;
 #[cfg(feature = "full")]
 use tracing::{error, info};
 #[cfg(feature = "full")]
-use vllm_core::{Generator, ModelLoader};
+use injection_core::{Classifier, ModelLoader};
 
 /// Server state shared across handlers
 #[cfg(feature = "full")]
 struct AppState {
-    generator: Arc<Mutex<Generator>>,
+    classifier: Arc<Mutex<Classifier>>,
 }
 
 /// Main entry point
@@ -55,19 +55,19 @@ struct AppState {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Initialize tracing
     tracing_subscriber::fmt()
-        .with_env_filter("vllm_server=info,tower_http=debug")
+        .with_env_filter("injection_server=info,tower_http=debug")
         .init();
 
-    info!("Initializing vLLM server...");
+    info!("Initializing prompt injection detection server...");
 
-    // Load model and create generator
-    info!("Loading model...");
+    // Load model and create classifier
+    info!("Loading DeBERTa model...");
     let model = ModelLoader::new()?;
-    let generator = Generator::new(model);
+    let classifier = Classifier::new(model);
 
     // Create shared state
     let state = AppState {
-        generator: Arc::new(Mutex::new(generator)),
+        classifier: Arc::new(Mutex::new(classifier)),
     };
 
     info!("Model loaded successfully");
@@ -75,7 +75,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Build router
     let app = Router::new()
         .route("/health", get(health_handler))
-        .route("/generate", post(generate_handler))
+        .route("/detect", post(detect_handler))
         .layer(TraceLayer::new_for_http())
         .with_state(Arc::new(state));
 
@@ -97,33 +97,39 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 async fn health_handler() -> Json<HealthResponse> {
     Json(HealthResponse {
         status: "healthy".to_string(),
-        model: "microsoft/phi-1_5".to_string(),
+        model: "protectai/deberta-v3-base-prompt-injection-v2".to_string(),
         version: env!("CARGO_PKG_VERSION").to_string(),
     })
 }
 
-/// Generate text endpoint
+/// Detect injection endpoint
 ///
-/// Accepts prompt and parameters, returns generated text
+/// Accepts text and returns classification result
 #[cfg(feature = "full")]
 #[inline]
-async fn generate_handler(
+async fn detect_handler(
     State(state): State<Arc<AppState>>,
-    Json(request): Json<GenerateRequest>,
-) -> Result<Json<GenerateResponse>, AppError> {
-    info!("Generating text for prompt: {:?}", request.prompt);
+    Json(request): Json<DetectRequest>,
+) -> Result<Json<DetectResponse>, AppError> {
+    info!("Detecting injection in text: {:?}", request.text);
 
-    // Acquire lock on generator
-    let mut generator = state.generator.lock().await;
+    // Acquire lock on classifier
+    let classifier = state.classifier.lock().await;
 
-    // Generate text
-    let generated = generator
-        .generate(&request.prompt, request.max_tokens.unwrap_or(50))
-        .map_err(|e| AppError::Generation(e.to_string()))?;
+    // Classify text
+    let result = classifier
+        .classify(&request.text)
+        .map_err(|e| AppError::Classification(e.to_string()))?;
 
-    info!("Generated {} characters", generated.len());
+    info!("Classification: {}, Confidence: {:.2}%",
+          if result.is_injection { "INJECTION" } else { "BENIGN" },
+          result.confidence * 100.0);
 
-    Ok(Json(GenerateResponse { generated }))
+    Ok(Json(DetectResponse {
+        label: if result.is_injection { "injection".to_string() } else { "benign".to_string() },
+        confidence: result.confidence,
+        is_safe: !result.is_injection,
+    }))
 }
 
 /// Health check response
@@ -135,25 +141,27 @@ struct HealthResponse {
     version: String,
 }
 
-/// Generate request payload
+/// Detect request payload
 #[cfg(feature = "full")]
 #[derive(Deserialize)]
-struct GenerateRequest {
-    prompt: String,
-    max_tokens: Option<usize>,
+struct DetectRequest {
+    text: String,
+    threshold: Option<f32>,
 }
 
-/// Generate response payload
+/// Detect response payload
 #[cfg(feature = "full")]
 #[derive(Serialize)]
-struct GenerateResponse {
-    generated: String,
+struct DetectResponse {
+    label: String,
+    confidence: f32,
+    is_safe: bool,
 }
 
 /// Application error type
 #[cfg(feature = "full")]
 enum AppError {
-    Generation(String),
+    Classification(String),
 }
 
 #[cfg(feature = "full")]
@@ -161,11 +169,11 @@ impl IntoResponse for AppError {
     #[inline]
     fn into_response(self) -> Response {
         let (status, message) = match self {
-            AppError::Generation(msg) => {
-                error!("Generation error: {}", msg);
+            AppError::Classification(msg) => {
+                error!("Classification error: {}", msg);
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
-                    format!("Generation failed: {}", msg),
+                    format!("Classification failed: {}", msg),
                 )
             }
         };
@@ -177,7 +185,7 @@ impl IntoResponse for AppError {
 /// Stub main when full feature is not enabled
 #[cfg(not(feature = "full"))]
 fn main() {
-    eprintln!("Error: vllm_server requires 'full' feature to be enabled");
+    eprintln!("Error: injection_server requires 'full' feature to be enabled");
     eprintln!("Build with: cargo build --features full");
     std::process::exit(1);
 }

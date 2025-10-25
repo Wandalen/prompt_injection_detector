@@ -1,20 +1,20 @@
 [package]
-name = "vllm_core"
+name = "injection_core"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 authors.workspace = true
 license.workspace = true
-description = "Core LLM inference library using Candle framework"
-repository = "https://github.com/your-org/vllm_inferencer"
-keywords = ["llm", "inference", "candle", "phi", "ml"]
+description = "Core prompt injection detection library using ONNX Runtime"
+repository = "https://github.com/your-org/prompt_injection_detector"
+keywords = ["security", "prompt-injection", "ml", "deberta", "detection"]
 categories = ["machine-learning"]
 
 [lints]
 workspace = true
 
 [lib]
-name = "vllm_core"
+name = "injection_core"
 path = "src/lib.rs"
 
 [features]
@@ -22,11 +22,8 @@ default = ["enabled"]
 enabled = []
 full = [
   "enabled",
-  "dep:candle-core",
-  "dep:candle-nn",
-  "dep:candle-transformers",
+  "dep:ort",
   "dep:hf-hub",
-  "dep:safetensors",
   "dep:tokenizers",
   "dep:serde",
   "dep:serde_json",
@@ -35,14 +32,11 @@ full = [
 ]
 
 [dependencies]
-# ML Framework
-candle-core = { workspace = true, optional = true }
-candle-nn = { workspace = true, optional = true }
-candle-transformers = { workspace = true, optional = true }
+# ML Framework - ONNX Runtime
+ort = { workspace = true, optional = true }
 
 # Model Loading
 hf-hub = { workspace = true, optional = true }
-safetensors = { workspace = true, optional = true }
 
 # Tokenization
 tokenizers = { workspace = true, optional = true }

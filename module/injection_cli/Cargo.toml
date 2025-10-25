@@ -1,20 +1,20 @@
 [package]
-name = "vllm_inferencer"
+name = "injection_cli"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 authors.workspace = true
 license.workspace = true
-description = "CLI interface for vLLM inference engine"
-repository = "https://github.com/your-org/vllm_inferencer"
-keywords = ["llm", "inference", "cli"]
+description = "CLI interface for prompt injection detection using unilang"
+repository = "https://github.com/your-org/prompt_injection_detector"
+keywords = ["security", "prompt-injection", "cli", "detection"]
 categories = ["command-line-utilities"]
 
 [lints]
 workspace = true
 
 [[bin]]
-name = "vllm_inferencer"
+name = "injection_cli"
 path = "src/main.rs"
 
 [features]
@@ -22,13 +22,17 @@ default = ["enabled"]
 enabled = []
 full = [
   "enabled",
-  "vllm_core/full",
+  "injection_core/full",
+  "dep:unilang",
   "dep:error_tools",
 ]
 
 [dependencies]
 # Core library
-vllm_core = { workspace = true, optional = true }
+injection_core = { workspace = true, optional = true }
+
+# CLI Framework
+unilang = { workspace = true, optional = true }
 
 # Error Handling
 error_tools = { workspace = true, optional = true }
