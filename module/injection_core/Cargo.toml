@@ -30,6 +30,7 @@ anyhow = { workspace = true }
 tokenizers = { workspace = true, optional = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+once_cell = { workspace = true }
 
 # ORT Backend with CUDA
 ort = { workspace = true, optional = true }

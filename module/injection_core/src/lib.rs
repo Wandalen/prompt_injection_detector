@@ -33,8 +33,8 @@ pub mod burn_impl;
 // Backend modules
 pub mod backend;
 
-// Re-export detect function
-pub use backend::detect;
+// Re-export main API functions
+pub use backend::{detect, init};
 
 // Legacy modules (disabled for now - use backend instead)
 // TODO: Remove or refactor these old modules
