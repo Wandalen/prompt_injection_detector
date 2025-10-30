@@ -57,7 +57,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Print result
     println!("\n=== Detection Result ===");
-    println!("Classification: {}", if result.is_injection { "INJECTION" } else { "BENIGN" });
+    println!(
+        "Classification: {}",
+        if result.is_injection {
+            "INJECTION"
+        } else {
+            "BENIGN"
+        }
+    );
     println!("Confidence: {:.2}%", result.confidence * 100.0);
     println!("Safe: {}", !result.is_injection);
 

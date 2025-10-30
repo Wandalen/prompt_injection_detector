@@ -31,6 +31,8 @@ use axum::{
     Router,
 };
 #[cfg(feature = "full")]
+use injection_core::{Classifier, ModelLoader};
+#[cfg(feature = "full")]
 use serde::{Deserialize, Serialize};
 #[cfg(feature = "full")]
 use std::sync::Arc;
@@ -40,8 +42,6 @@ use tokio::sync::Mutex;
 use tower_http::trace::TraceLayer;
 #[cfg(feature = "full")]
 use tracing::{error, info};
-#[cfg(feature = "full")]
-use injection_core::{Classifier, ModelLoader};
 
 /// Server state shared across handlers
 #[cfg(feature = "full")]
@@ -121,12 +121,22 @@ async fn detect_handler(
         .classify(&request.text)
         .map_err(|e| AppError::Classification(e.to_string()))?;
 
-    info!("Classification: {}, Confidence: {:.2}%",
-          if result.is_injection { "INJECTION" } else { "BENIGN" },
-          result.confidence * 100.0);
+    info!(
+        "Classification: {}, Confidence: {:.2}%",
+        if result.is_injection {
+            "INJECTION"
+        } else {
+            "BENIGN"
+        },
+        result.confidence * 100.0
+    );
 
     Ok(Json(DetectResponse {
-        label: if result.is_injection { "injection".to_string() } else { "benign".to_string() },
+        label: if result.is_injection {
+            "injection".to_string()
+        } else {
+            "benign".to_string()
+        },
         confidence: result.confidence,
         is_safe: !result.is_injection,
     }))
