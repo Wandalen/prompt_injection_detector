@@ -18,21 +18,31 @@ name = "injection_cli"
 path = "src/main.rs"
 
 [features]
-default = ["enabled"]
+default = ["enabled", "backend-ort"]
 enabled = []
+backend-ort = ["injection_core/backend-ort"]
+backend-burn = ["injection_core/backend-burn"]
 full = [
   "enabled",
-  "injection_core/full",
+  "backend-ort",
   "dep:unilang",
   "dep:error_tools",
 ]
 
 [dependencies]
-# Core library
-injection_core = { workspace = true, optional = true }
+# Core library (use path to control default-features)
+injection_core = { path = "../injection_core", default-features = false }
 
 # CLI Framework
 unilang = { workspace = true, optional = true }
 
 # Error Handling
 error_tools = { workspace = true, optional = true }
+anyhow = { workspace = true }
+
+# Interactive mode
+rustyline = "14.0"
+
+# Output formatting
+colored = "2.1"
+serde_json = { workspace = true }
