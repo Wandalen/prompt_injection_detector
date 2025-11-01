@@ -29,7 +29,61 @@ See [roadmap.md](./roadmap.md) for complete timeline.
 
 ## Quick Start
 
-**Prerequisites:** NVIDIA GPU (8GB+ VRAM, optional), Rust 1.70+
+**Prerequisites:**
+- NVIDIA GPU (8GB+ VRAM, optional)
+- Rust 1.70+
+- CUDA 12.x+ (for GPU acceleration)
+- Model files (see installation below)
+
+### Model Installation
+
+Before building, you need to download the model files:
+
+**Option 1: Using Python (HuggingFace Hub)**
+
+```bash
+# Install dependencies
+pip install huggingface_hub torch transformers optimum onnx onnxruntime
+
+# Download and export model to ONNX
+python scripts/export_model.py
+```
+
+**Option 2: Manual Download**
+
+```bash
+# Create artifacts directory
+mkdir -p artifacts
+
+# Download ONNX model from HuggingFace or your model repository
+# Place the following files in artifacts/:
+#   - model.onnx (572MB) - ONNX format for ORT backend
+#   - tokenizer.json     - Tokenizer configuration
+#   - config.json        - Model configuration
+
+# For Burn backend, the MPK file is auto-generated:
+make rebuild-mpk  # Converts model.onnx → model.mpk
+```
+
+**Expected artifacts structure:**
+```
+vllm_inferencer/
+├── artifacts/
+│   ├── model.onnx       # Required for ORT backend
+│   ├── model.mpk        # Auto-generated for Burn backend
+│   ├── tokenizer.json   # Required for both
+│   └── config.json      # Optional, for reference
+```
+
+**Verify installation:**
+```bash
+ls -lh artifacts/
+# Should show:
+# model.onnx    (~572MB)
+# tokenizer.json
+```
+
+### Build and Run
 
 ```bash
 # Build and run CLI
