@@ -1,15 +1,14 @@
 // Generated from ONNX "../../artifacts/model.onnx" by burn-import
 extern crate alloc;
-use burn::prelude::*;
 use alloc::vec::Vec;
 use burn::nn::LayerNorm;
 use burn::nn::LayerNormConfig;
 use burn::nn::Linear;
 use burn::nn::LinearConfig;
+use burn::prelude::*;
 use burn::record::HalfPrecisionSettings;
 use burn::record::Recorder;
 use core::ops::Neg;
-
 
 #[derive(Module, Debug)]
 pub struct Model<B: Backend> {
@@ -178,7 +177,6 @@ pub struct Model<B: Backend> {
     phantom: core::marker::PhantomData<B>,
     device: burn::module::Ignored<B::Device>,
 }
-
 
 impl<B: Backend> Default for Model<B> {
     fn default() -> Self {
@@ -596,13 +594,14 @@ impl<B: Backend> Model<B> {
         let layernormalization45 = LayerNormConfig::new(768)
             .with_epsilon(0.000009999999747378752f64)
             .init(device);
-        let constant1084: burn::module::Param<Tensor<B, 1, Int>> = burn::module::Param::uninitialized(
-            burn::module::ParamId::new(),
-            move |device, _require_grad| Tensor::<B, 1, Int>::zeros([1], device),
-            device.clone(),
-            false,
-            [1].into(),
-        );
+        let constant1084: burn::module::Param<Tensor<B, 1, Int>> =
+            burn::module::Param::uninitialized(
+                burn::module::ParamId::new(),
+                move |device, _require_grad| Tensor::<B, 1, Int>::zeros([1], device),
+                device.clone(),
+                false,
+                [1].into(),
+            );
         let matmul135 = LinearConfig::new(768, 768).with_bias(false).init(device);
         let layernormalization46 = LayerNormConfig::new(768)
             .with_epsilon(0.000009999999747378752f64)
@@ -777,14 +776,8 @@ impl<B: Backend> Model<B> {
     }
 
     #[allow(clippy::let_and_return, clippy::approx_constant)]
-    pub fn forward(
-        &self,
-        input1: Tensor<B, 2, Int>,
-        input2: Tensor<B, 2, Int>,
-    ) -> Tensor<B, 2> {
-        let shape1_out1: [i64; 2] = input1
-            .clone()
-            .dims()[0..2]
+    pub fn forward(&self, input1: Tensor<B, 2, Int>, input2: Tensor<B, 2, Int>) -> Tensor<B, 2> {
+        let shape1_out1: [i64; 2] = input1.clone().dims()[0..2]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -799,15 +792,10 @@ impl<B: Backend> Model<B> {
         let gather1_out1 = shape1_out1[actual_idx] as i64;
         let cast1_out1 = gather1_out1;
         let constant2_out1: i64 = 0i64;
-        let range1_out1 = Tensor::arange_step(
-            constant2_out1..cast1_out1,
-            1i64 as usize,
-            &*self.device,
-        );
+        let range1_out1 =
+            Tensor::arange_step(constant2_out1..cast1_out1, 1i64 as usize, &*self.device);
         let unsqueeze1_out1: Tensor<B, 2, Int> = range1_out1.unsqueeze_dims(&[0]);
-        let shape2_out1: [i64; 2] = input2
-            .clone()
-            .dims()[0..2]
+        let shape2_out1: [i64; 2] = input2.clone().dims()[0..2]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -820,9 +808,7 @@ impl<B: Backend> Model<B> {
             constant5_out1 as usize
         };
         let gather2_out1 = shape2_out1[actual_idx] as i64;
-        let shape3_out1: [i64; 2] = input2
-            .clone()
-            .dims()[0..2]
+        let shape3_out1: [i64; 2] = input2.clone().dims()[0..2]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -847,9 +833,9 @@ impl<B: Backend> Model<B> {
             &unsqueeze5_out1[..],
             &unsqueeze6_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape1_out1 = concat1_out1;
         let shape4_out1: [i64; 1] = [4i64];
         let constantofshape1_out1: [i64; 1] = [1i64];
@@ -889,9 +875,7 @@ impl<B: Backend> Model<B> {
         let cast4_out1 = cast3_out1;
         let constant16_out1: f32 = -340282350000000000000000000000000000000f32;
         let where2_out1 = sub1_out1.mask_fill(cast4_out1, constant16_out1);
-        let shape5_out1: [i64; 4] = where2_out1
-            .clone()
-            .dims()[0..4]
+        let shape5_out1: [i64; 4] = where2_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -906,11 +890,8 @@ impl<B: Backend> Model<B> {
         let gather4_out1 = shape5_out1[actual_idx] as i64;
         let cast5_out1 = gather4_out1;
         let constant18_out1: i64 = 0i64;
-        let range2_out1 = Tensor::arange_step(
-            constant18_out1..cast5_out1,
-            1i64 as usize,
-            &*self.device,
-        );
+        let range2_out1 =
+            Tensor::arange_step(constant18_out1..cast5_out1, 1i64 as usize, &*self.device);
         let unsqueeze7_out1: Tensor<B, 2, Int> = range2_out1.unsqueeze_dims(&[0]);
         let transpose1_out1 = unsqueeze7_out1.clone().permute([1, 0]);
         let sub2_out1 = unsqueeze7_out1.sub(transpose1_out1);
@@ -934,9 +915,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul1_out1 = self.matmul1.forward(layernormalization1_out1.clone());
-        let shape6_out1: [i64; 3] = layernormalization1_out1
-            .clone()
-            .dims()[0..3]
+        let shape6_out1: [i64; 3] = layernormalization1_out1.clone().dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -961,14 +940,12 @@ impl<B: Backend> Model<B> {
             &constant31_out1[..],
             &constant32_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape2_out1 = matmul1_out1.reshape(concat2_out1);
         let constant33_out1 = self.constant33.val();
-        let shape7_out1: [i64; 2] = unsqueeze1_out1
-            .clone()
-            .dims()[0..2]
+        let shape7_out1: [i64; 2] = unsqueeze1_out1.clone().dims()[0..2]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -989,9 +966,9 @@ impl<B: Backend> Model<B> {
             &constant36_out1[..],
             &constant37_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape3_out1 = concat3_out1;
         let shape8_out1: [i64; 1] = [3i64];
         let constantofshape2_out1: [i64; 1] = [1i64];
@@ -1031,10 +1008,8 @@ impl<B: Backend> Model<B> {
         let cast12_out1 = cast10_out1;
         let matmul2_out1 = cast11_out1.matmul(cast12_out1.clone());
         let transpose2_out1 = matmul2_out1.permute([0, 2, 1]);
-        let concat4_out1 = burn::tensor::Tensor::cat(
-            [transpose2_out1.clone(), transpose2_out1].into(),
-            2,
-        );
+        let concat4_out1 =
+            burn::tensor::Tensor::cat([transpose2_out1.clone(), transpose2_out1].into(), 2);
         let cos1_out1 = concat4_out1.clone().cos();
         let constant41_out1: f32 = 1f32;
         let mul3_out1 = cos1_out1.mul_scalar(constant41_out1);
@@ -1052,9 +1027,7 @@ impl<B: Backend> Model<B> {
         let unsqueeze13_out1: Tensor<B, 4> = cast13_out1.unsqueeze_dims(&[1]);
         let unsqueeze14_out1: Tensor<B, 4> = cast14_out1.unsqueeze_dims(&[1]);
         let mul5_out1 = squeeze1_out1.clone().mul(unsqueeze13_out1.clone());
-        let shape9_out1: [i64; 4] = squeeze1_out1
-            .clone()
-            .dims()[0..4]
+        let shape9_out1: [i64; 4] = squeeze1_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -1076,16 +1049,14 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze15_out1[0]]);
         let unsqueeze16_out1 = [cast16_out1];
-        let slice2_out1 = squeeze1_out1
-            .slice(s![.., .., .., unsqueeze16_out1[0]..9223372036854775807]);
+        let slice2_out1 =
+            squeeze1_out1.slice(s![.., .., .., unsqueeze16_out1[0]..9223372036854775807]);
         let neg1_out1 = slice2_out1.neg();
         let concat5_out1 = burn::tensor::Tensor::cat([neg1_out1, slice1_out1].into(), 3);
         let mul6_out1 = concat5_out1.mul(unsqueeze14_out1.clone());
         let add1_out1 = mul5_out1.add(mul6_out1);
         let mul7_out1 = squeeze2_out1.clone().mul(unsqueeze13_out1.clone());
-        let shape10_out1: [i64; 4] = squeeze2_out1
-            .clone()
-            .dims()[0..4]
+        let shape10_out1: [i64; 4] = squeeze2_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -1107,15 +1078,13 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze17_out1[0]]);
         let unsqueeze18_out1 = [cast18_out1];
-        let slice4_out1 = squeeze2_out1
-            .slice(s![.., .., .., unsqueeze18_out1[0]..9223372036854775807]);
+        let slice4_out1 =
+            squeeze2_out1.slice(s![.., .., .., unsqueeze18_out1[0]..9223372036854775807]);
         let neg2_out1 = slice4_out1.neg();
         let concat6_out1 = burn::tensor::Tensor::cat([neg2_out1, slice3_out1].into(), 3);
         let mul8_out1 = concat6_out1.mul(unsqueeze14_out1.clone());
         let add2_out1 = mul7_out1.add(mul8_out1);
-        let shape11_out1: [i64; 4] = add1_out1
-            .clone()
-            .dims()[0..4]
+        let shape11_out1: [i64; 4] = add1_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -1133,11 +1102,9 @@ impl<B: Backend> Model<B> {
         let cast20_out1 = div3_out1;
         let transpose4_out1 = add2_out1.permute([0, 1, 3, 2]);
         let sqrt2_out1 = cast20_out1.clone().sqrt();
-        let mul9_out1 = add1_out1
-            .mul(sqrt2_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul9_out1 = add1_out1.mul(sqrt2_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let sqrt3_out1 = cast20_out1.sqrt();
-        let mul10_out1 = transpose4_out1
-            .mul(sqrt3_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul10_out1 = transpose4_out1.mul(sqrt3_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let matmul3_out1 = mul9_out1.matmul(mul10_out1);
         let add3_out1 = matmul3_out1.add(where2_out1.clone());
         let softmax1_out1 = burn::tensor::activation::softmax(add3_out1, 3);
@@ -1151,9 +1118,9 @@ impl<B: Backend> Model<B> {
             &constant73_out1[..],
             &constant74_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape4_out1 = transpose5_out1.reshape(concat7_out1);
         let matmul5_out1 = self.matmul5.forward(reshape4_out1);
         let add4_out1 = layernormalization1_out1.add(matmul5_out1);
@@ -1164,9 +1131,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul6_out1 = self.matmul6.forward(layernormalization2_out1);
-        let shape12_out1: [i64; 3] = matmul6_out1
-            .clone()
-            .dims()[0..3]
+        let shape12_out1: [i64; 3] = matmul6_out1.clone().dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -1189,8 +1154,7 @@ impl<B: Backend> Model<B> {
         let constant78_out1: [i64; 1] = [1i64];
         let add5_out1 = {
             let mut result = gather10_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant78_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant78_out1.iter()) {
                 *result_item = result_item.saturating_add(*rhs_item);
             }
             result
@@ -1198,8 +1162,7 @@ impl<B: Backend> Model<B> {
         let constant79_out1: [i64; 1] = [2i64];
         let div4_out1 = {
             let mut result = add5_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant79_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant79_out1.iter()) {
                 *result_item = if *rhs_item != 0 {
                     *result_item / *rhs_item
                 } else {
@@ -1211,8 +1174,7 @@ impl<B: Backend> Model<B> {
         let constant80_out1: [i64; 1] = [1i64];
         let mul11_out1 = {
             let mut result = div4_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant80_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant80_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
@@ -1221,8 +1183,7 @@ impl<B: Backend> Model<B> {
         let constant81_out1: [i64; 1] = [2i64];
         let mul12_out1 = {
             let mut result = div4_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant81_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant81_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
@@ -1246,8 +1207,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul8_out1 = self.matmul8.forward(layernormalization3_out1.clone());
-        let shape13_out1: [i64; 3] = layernormalization3_out1
-            .dims()[0..3]
+        let shape13_out1: [i64; 3] = layernormalization3_out1.dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -1272,9 +1232,9 @@ impl<B: Backend> Model<B> {
             &constant90_out1[..],
             &constant91_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape5_out1 = matmul8_out1.reshape(concat8_out1);
         let constant92_out1 = self.constant92.val();
         let unsqueeze21_out1 = [gather7_out1];
@@ -1285,9 +1245,9 @@ impl<B: Backend> Model<B> {
             &constant94_out1[..],
             &constant95_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape6_out1 = concat9_out1;
         let shape14_out1: [i64; 1] = [3i64];
         let constantofshape3_out1: [i64; 1] = [1i64];
@@ -1324,10 +1284,8 @@ impl<B: Backend> Model<B> {
         let cast22_out1 = cast21_out1;
         let matmul9_out1 = cast22_out1.matmul(cast12_out1);
         let transpose6_out1 = matmul9_out1.permute([0, 2, 1]);
-        let concat10_out1 = burn::tensor::Tensor::cat(
-            [transpose6_out1.clone(), transpose6_out1].into(),
-            2,
-        );
+        let concat10_out1 =
+            burn::tensor::Tensor::cat([transpose6_out1.clone(), transpose6_out1].into(), 2);
         let cos2_out1 = concat10_out1.clone().cos();
         let constant98_out1: f32 = 1f32;
         let mul17_out1 = cos2_out1.mul_scalar(constant98_out1);
@@ -1345,9 +1303,7 @@ impl<B: Backend> Model<B> {
         let unsqueeze22_out1: Tensor<B, 4> = cast23_out1.unsqueeze_dims(&[1]);
         let unsqueeze23_out1: Tensor<B, 4> = cast24_out1.unsqueeze_dims(&[1]);
         let mul19_out1 = squeeze4_out1.clone().mul(unsqueeze22_out1.clone());
-        let shape15_out1: [i64; 4] = squeeze4_out1
-            .clone()
-            .dims()[0..4]
+        let shape15_out1: [i64; 4] = squeeze4_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -1369,19 +1325,14 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze24_out1[0]]);
         let unsqueeze25_out1 = [cast26_out1];
-        let slice9_out1 = squeeze4_out1
-            .slice(s![.., .., .., unsqueeze25_out1[0]..9223372036854775807]);
+        let slice9_out1 =
+            squeeze4_out1.slice(s![.., .., .., unsqueeze25_out1[0]..9223372036854775807]);
         let neg3_out1 = slice9_out1.neg();
-        let concat11_out1 = burn::tensor::Tensor::cat(
-            [neg3_out1, slice8_out1].into(),
-            3,
-        );
+        let concat11_out1 = burn::tensor::Tensor::cat([neg3_out1, slice8_out1].into(), 3);
         let mul20_out1 = concat11_out1.mul(unsqueeze23_out1.clone());
         let add8_out1 = mul19_out1.add(mul20_out1);
         let mul21_out1 = squeeze5_out1.clone().mul(unsqueeze22_out1.clone());
-        let shape16_out1: [i64; 4] = squeeze5_out1
-            .clone()
-            .dims()[0..4]
+        let shape16_out1: [i64; 4] = squeeze5_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -1403,18 +1354,13 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze26_out1[0]]);
         let unsqueeze27_out1 = [cast28_out1];
-        let slice11_out1 = squeeze5_out1
-            .slice(s![.., .., .., unsqueeze27_out1[0]..9223372036854775807]);
+        let slice11_out1 =
+            squeeze5_out1.slice(s![.., .., .., unsqueeze27_out1[0]..9223372036854775807]);
         let neg4_out1 = slice11_out1.neg();
-        let concat12_out1 = burn::tensor::Tensor::cat(
-            [neg4_out1, slice10_out1].into(),
-            3,
-        );
+        let concat12_out1 = burn::tensor::Tensor::cat([neg4_out1, slice10_out1].into(), 3);
         let mul22_out1 = concat12_out1.mul(unsqueeze23_out1.clone());
         let add9_out1 = mul21_out1.add(mul22_out1);
-        let shape17_out1: [i64; 4] = add8_out1
-            .clone()
-            .dims()[0..4]
+        let shape17_out1: [i64; 4] = add8_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -1432,11 +1378,9 @@ impl<B: Backend> Model<B> {
         let cast30_out1 = div8_out1;
         let transpose8_out1 = add9_out1.permute([0, 1, 3, 2]);
         let sqrt5_out1 = cast30_out1.clone().sqrt();
-        let mul23_out1 = add8_out1
-            .mul(sqrt5_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul23_out1 = add8_out1.mul(sqrt5_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let sqrt6_out1 = cast30_out1.sqrt();
-        let mul24_out1 = transpose8_out1
-            .mul(sqrt6_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul24_out1 = transpose8_out1.mul(sqrt6_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let matmul10_out1 = mul23_out1.matmul(mul24_out1);
         let add10_out1 = matmul10_out1.add(where3_out1.clone());
         let softmax2_out1 = burn::tensor::activation::softmax(add10_out1, 3);
@@ -1450,9 +1394,9 @@ impl<B: Backend> Model<B> {
             &constant130_out1[..],
             &constant131_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape7_out1 = transpose9_out1.reshape(concat13_out1);
         let matmul12_out1 = self.matmul12.forward(reshape7_out1);
         let add11_out1 = add7_out1.add(matmul12_out1);
@@ -1463,9 +1407,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul13_out1 = self.matmul13.forward(layernormalization4_out1);
-        let shape18_out1: [i64; 3] = matmul13_out1
-            .clone()
-            .dims()[0..3]
+        let shape18_out1: [i64; 3] = matmul13_out1.clone().dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -1488,8 +1430,7 @@ impl<B: Backend> Model<B> {
         let constant135_out1: [i64; 1] = [1i64];
         let add12_out1 = {
             let mut result = gather14_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant135_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant135_out1.iter()) {
                 *result_item = result_item.saturating_add(*rhs_item);
             }
             result
@@ -1497,8 +1438,7 @@ impl<B: Backend> Model<B> {
         let constant136_out1: [i64; 1] = [2i64];
         let div9_out1 = {
             let mut result = add12_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant136_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant136_out1.iter()) {
                 *result_item = if *rhs_item != 0 {
                     *result_item / *rhs_item
                 } else {
@@ -1510,8 +1450,7 @@ impl<B: Backend> Model<B> {
         let constant137_out1: [i64; 1] = [1i64];
         let mul25_out1 = {
             let mut result = div9_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant137_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant137_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
@@ -1520,8 +1459,7 @@ impl<B: Backend> Model<B> {
         let constant138_out1: [i64; 1] = [2i64];
         let mul26_out1 = {
             let mut result = div9_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant138_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant138_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
@@ -1545,8 +1483,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul15_out1 = self.matmul15.forward(layernormalization5_out1.clone());
-        let shape19_out1: [i64; 3] = layernormalization5_out1
-            .dims()[0..3]
+        let shape19_out1: [i64; 3] = layernormalization5_out1.dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -1571,9 +1508,9 @@ impl<B: Backend> Model<B> {
             &constant147_out1[..],
             &constant148_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape8_out1 = matmul15_out1.reshape(concat14_out1);
         let transpose10_out1 = reshape8_out1.permute([0, 3, 2, 1, 4]);
         let split_tensors = transpose10_out1.split_with_sizes([1, 1, 1].to_vec(), 2);
@@ -1582,9 +1519,7 @@ impl<B: Backend> Model<B> {
         let squeeze8_out1 = split3_out2.squeeze_dims(&[2]);
         let squeeze9_out1 = split3_out3.squeeze_dims(&[2]);
         let mul30_out1 = squeeze7_out1.clone().mul(unsqueeze22_out1.clone());
-        let shape20_out1: [i64; 4] = squeeze7_out1
-            .clone()
-            .dims()[0..4]
+        let shape20_out1: [i64; 4] = squeeze7_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -1606,19 +1541,14 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze30_out1[0]]);
         let unsqueeze31_out1 = [cast32_out1];
-        let slice16_out1 = squeeze7_out1
-            .slice(s![.., .., .., unsqueeze31_out1[0]..9223372036854775807]);
+        let slice16_out1 =
+            squeeze7_out1.slice(s![.., .., .., unsqueeze31_out1[0]..9223372036854775807]);
         let neg5_out1 = slice16_out1.neg();
-        let concat15_out1 = burn::tensor::Tensor::cat(
-            [neg5_out1, slice15_out1].into(),
-            3,
-        );
+        let concat15_out1 = burn::tensor::Tensor::cat([neg5_out1, slice15_out1].into(), 3);
         let mul31_out1 = concat15_out1.mul(unsqueeze23_out1.clone());
         let add15_out1 = mul30_out1.add(mul31_out1);
         let mul32_out1 = squeeze8_out1.clone().mul(unsqueeze22_out1.clone());
-        let shape21_out1: [i64; 4] = squeeze8_out1
-            .clone()
-            .dims()[0..4]
+        let shape21_out1: [i64; 4] = squeeze8_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -1640,18 +1570,13 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze32_out1[0]]);
         let unsqueeze33_out1 = [cast34_out1];
-        let slice18_out1 = squeeze8_out1
-            .slice(s![.., .., .., unsqueeze33_out1[0]..9223372036854775807]);
+        let slice18_out1 =
+            squeeze8_out1.slice(s![.., .., .., unsqueeze33_out1[0]..9223372036854775807]);
         let neg6_out1 = slice18_out1.neg();
-        let concat16_out1 = burn::tensor::Tensor::cat(
-            [neg6_out1, slice17_out1].into(),
-            3,
-        );
+        let concat16_out1 = burn::tensor::Tensor::cat([neg6_out1, slice17_out1].into(), 3);
         let mul33_out1 = concat16_out1.mul(unsqueeze23_out1.clone());
         let add16_out1 = mul32_out1.add(mul33_out1);
-        let shape22_out1: [i64; 4] = add15_out1
-            .clone()
-            .dims()[0..4]
+        let shape22_out1: [i64; 4] = add15_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -1669,11 +1594,9 @@ impl<B: Backend> Model<B> {
         let cast36_out1 = div13_out1;
         let transpose11_out1 = add16_out1.permute([0, 1, 3, 2]);
         let sqrt8_out1 = cast36_out1.clone().sqrt();
-        let mul34_out1 = add15_out1
-            .mul(sqrt8_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul34_out1 = add15_out1.mul(sqrt8_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let sqrt9_out1 = cast36_out1.sqrt();
-        let mul35_out1 = transpose11_out1
-            .mul(sqrt9_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul35_out1 = transpose11_out1.mul(sqrt9_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let matmul16_out1 = mul34_out1.matmul(mul35_out1);
         let add17_out1 = matmul16_out1.add(where3_out1.clone());
         let softmax3_out1 = burn::tensor::activation::softmax(add17_out1, 3);
@@ -1687,9 +1610,9 @@ impl<B: Backend> Model<B> {
             &constant177_out1[..],
             &constant178_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape9_out1 = transpose12_out1.reshape(concat17_out1);
         let matmul18_out1 = self.matmul18.forward(reshape9_out1);
         let add18_out1 = add14_out1.add(matmul18_out1);
@@ -1700,9 +1623,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul19_out1 = self.matmul19.forward(layernormalization6_out1);
-        let shape23_out1: [i64; 3] = matmul19_out1
-            .clone()
-            .dims()[0..3]
+        let shape23_out1: [i64; 3] = matmul19_out1.clone().dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -1725,8 +1646,7 @@ impl<B: Backend> Model<B> {
         let constant182_out1: [i64; 1] = [1i64];
         let add19_out1 = {
             let mut result = gather18_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant182_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant182_out1.iter()) {
                 *result_item = result_item.saturating_add(*rhs_item);
             }
             result
@@ -1734,8 +1654,7 @@ impl<B: Backend> Model<B> {
         let constant183_out1: [i64; 1] = [2i64];
         let div14_out1 = {
             let mut result = add19_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant183_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant183_out1.iter()) {
                 *result_item = if *rhs_item != 0 {
                     *result_item / *rhs_item
                 } else {
@@ -1747,8 +1666,7 @@ impl<B: Backend> Model<B> {
         let constant184_out1: [i64; 1] = [1i64];
         let mul36_out1 = {
             let mut result = div14_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant184_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant184_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
@@ -1757,8 +1675,7 @@ impl<B: Backend> Model<B> {
         let constant185_out1: [i64; 1] = [2i64];
         let mul37_out1 = {
             let mut result = div14_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant185_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant185_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
@@ -1782,8 +1699,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul21_out1 = self.matmul21.forward(layernormalization7_out1.clone());
-        let shape24_out1: [i64; 3] = layernormalization7_out1
-            .dims()[0..3]
+        let shape24_out1: [i64; 3] = layernormalization7_out1.dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -1808,9 +1724,9 @@ impl<B: Backend> Model<B> {
             &constant194_out1[..],
             &constant195_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape10_out1 = matmul21_out1.reshape(concat18_out1);
         let transpose13_out1 = reshape10_out1.permute([0, 3, 2, 1, 4]);
         let split_tensors = transpose13_out1.split_with_sizes([1, 1, 1].to_vec(), 2);
@@ -1819,9 +1735,7 @@ impl<B: Backend> Model<B> {
         let squeeze11_out1 = split4_out2.squeeze_dims(&[2]);
         let squeeze12_out1 = split4_out3.squeeze_dims(&[2]);
         let mul41_out1 = squeeze10_out1.clone().mul(unsqueeze13_out1.clone());
-        let shape25_out1: [i64; 4] = squeeze10_out1
-            .clone()
-            .dims()[0..4]
+        let shape25_out1: [i64; 4] = squeeze10_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -1843,19 +1757,14 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze36_out1[0]]);
         let unsqueeze37_out1 = [cast38_out1];
-        let slice23_out1 = squeeze10_out1
-            .slice(s![.., .., .., unsqueeze37_out1[0]..9223372036854775807]);
+        let slice23_out1 =
+            squeeze10_out1.slice(s![.., .., .., unsqueeze37_out1[0]..9223372036854775807]);
         let neg7_out1 = slice23_out1.neg();
-        let concat19_out1 = burn::tensor::Tensor::cat(
-            [neg7_out1, slice22_out1].into(),
-            3,
-        );
+        let concat19_out1 = burn::tensor::Tensor::cat([neg7_out1, slice22_out1].into(), 3);
         let mul42_out1 = concat19_out1.mul(unsqueeze14_out1.clone());
         let add22_out1 = mul41_out1.add(mul42_out1);
         let mul43_out1 = squeeze11_out1.clone().mul(unsqueeze13_out1.clone());
-        let shape26_out1: [i64; 4] = squeeze11_out1
-            .clone()
-            .dims()[0..4]
+        let shape26_out1: [i64; 4] = squeeze11_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -1877,18 +1786,13 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze38_out1[0]]);
         let unsqueeze39_out1 = [cast40_out1];
-        let slice25_out1 = squeeze11_out1
-            .slice(s![.., .., .., unsqueeze39_out1[0]..9223372036854775807]);
+        let slice25_out1 =
+            squeeze11_out1.slice(s![.., .., .., unsqueeze39_out1[0]..9223372036854775807]);
         let neg8_out1 = slice25_out1.neg();
-        let concat20_out1 = burn::tensor::Tensor::cat(
-            [neg8_out1, slice24_out1].into(),
-            3,
-        );
+        let concat20_out1 = burn::tensor::Tensor::cat([neg8_out1, slice24_out1].into(), 3);
         let mul44_out1 = concat20_out1.mul(unsqueeze14_out1.clone());
         let add23_out1 = mul43_out1.add(mul44_out1);
-        let shape27_out1: [i64; 4] = add22_out1
-            .clone()
-            .dims()[0..4]
+        let shape27_out1: [i64; 4] = add22_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -1906,11 +1810,10 @@ impl<B: Backend> Model<B> {
         let cast42_out1 = div18_out1;
         let transpose14_out1 = add23_out1.permute([0, 1, 3, 2]);
         let sqrt11_out1 = cast42_out1.clone().sqrt();
-        let mul45_out1 = add22_out1
-            .mul(sqrt11_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul45_out1 = add22_out1.mul(sqrt11_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let sqrt12_out1 = cast42_out1.sqrt();
-        let mul46_out1 = transpose14_out1
-            .mul(sqrt12_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul46_out1 =
+            transpose14_out1.mul(sqrt12_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let matmul22_out1 = mul45_out1.matmul(mul46_out1);
         let add24_out1 = matmul22_out1.add(where2_out1.clone());
         let softmax4_out1 = burn::tensor::activation::softmax(add24_out1, 3);
@@ -1924,9 +1827,9 @@ impl<B: Backend> Model<B> {
             &constant224_out1[..],
             &constant225_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape11_out1 = transpose15_out1.reshape(concat21_out1);
         let matmul24_out1 = self.matmul24.forward(reshape11_out1);
         let add25_out1 = add21_out1.add(matmul24_out1);
@@ -1937,9 +1840,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul25_out1 = self.matmul25.forward(layernormalization8_out1);
-        let shape28_out1: [i64; 3] = matmul25_out1
-            .clone()
-            .dims()[0..3]
+        let shape28_out1: [i64; 3] = matmul25_out1.clone().dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -1962,8 +1863,7 @@ impl<B: Backend> Model<B> {
         let constant229_out1: [i64; 1] = [1i64];
         let add26_out1 = {
             let mut result = gather22_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant229_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant229_out1.iter()) {
                 *result_item = result_item.saturating_add(*rhs_item);
             }
             result
@@ -1971,8 +1871,7 @@ impl<B: Backend> Model<B> {
         let constant230_out1: [i64; 1] = [2i64];
         let div19_out1 = {
             let mut result = add26_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant230_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant230_out1.iter()) {
                 *result_item = if *rhs_item != 0 {
                     *result_item / *rhs_item
                 } else {
@@ -1984,8 +1883,7 @@ impl<B: Backend> Model<B> {
         let constant231_out1: [i64; 1] = [1i64];
         let mul47_out1 = {
             let mut result = div19_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant231_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant231_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
@@ -1994,8 +1892,7 @@ impl<B: Backend> Model<B> {
         let constant232_out1: [i64; 1] = [2i64];
         let mul48_out1 = {
             let mut result = div19_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant232_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant232_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
@@ -2019,8 +1916,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul27_out1 = self.matmul27.forward(layernormalization9_out1.clone());
-        let shape29_out1: [i64; 3] = layernormalization9_out1
-            .dims()[0..3]
+        let shape29_out1: [i64; 3] = layernormalization9_out1.dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -2045,9 +1941,9 @@ impl<B: Backend> Model<B> {
             &constant241_out1[..],
             &constant242_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape12_out1 = matmul27_out1.reshape(concat22_out1);
         let transpose16_out1 = reshape12_out1.permute([0, 3, 2, 1, 4]);
         let split_tensors = transpose16_out1.split_with_sizes([1, 1, 1].to_vec(), 2);
@@ -2056,9 +1952,7 @@ impl<B: Backend> Model<B> {
         let squeeze14_out1 = split5_out2.squeeze_dims(&[2]);
         let squeeze15_out1 = split5_out3.squeeze_dims(&[2]);
         let mul52_out1 = squeeze13_out1.clone().mul(unsqueeze22_out1.clone());
-        let shape30_out1: [i64; 4] = squeeze13_out1
-            .clone()
-            .dims()[0..4]
+        let shape30_out1: [i64; 4] = squeeze13_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -2080,19 +1974,14 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze42_out1[0]]);
         let unsqueeze43_out1 = [cast44_out1];
-        let slice30_out1 = squeeze13_out1
-            .slice(s![.., .., .., unsqueeze43_out1[0]..9223372036854775807]);
+        let slice30_out1 =
+            squeeze13_out1.slice(s![.., .., .., unsqueeze43_out1[0]..9223372036854775807]);
         let neg9_out1 = slice30_out1.neg();
-        let concat23_out1 = burn::tensor::Tensor::cat(
-            [neg9_out1, slice29_out1].into(),
-            3,
-        );
+        let concat23_out1 = burn::tensor::Tensor::cat([neg9_out1, slice29_out1].into(), 3);
         let mul53_out1 = concat23_out1.mul(unsqueeze23_out1.clone());
         let add29_out1 = mul52_out1.add(mul53_out1);
         let mul54_out1 = squeeze14_out1.clone().mul(unsqueeze22_out1.clone());
-        let shape31_out1: [i64; 4] = squeeze14_out1
-            .clone()
-            .dims()[0..4]
+        let shape31_out1: [i64; 4] = squeeze14_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -2114,18 +2003,13 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze44_out1[0]]);
         let unsqueeze45_out1 = [cast46_out1];
-        let slice32_out1 = squeeze14_out1
-            .slice(s![.., .., .., unsqueeze45_out1[0]..9223372036854775807]);
+        let slice32_out1 =
+            squeeze14_out1.slice(s![.., .., .., unsqueeze45_out1[0]..9223372036854775807]);
         let neg10_out1 = slice32_out1.neg();
-        let concat24_out1 = burn::tensor::Tensor::cat(
-            [neg10_out1, slice31_out1].into(),
-            3,
-        );
+        let concat24_out1 = burn::tensor::Tensor::cat([neg10_out1, slice31_out1].into(), 3);
         let mul55_out1 = concat24_out1.mul(unsqueeze23_out1.clone());
         let add30_out1 = mul54_out1.add(mul55_out1);
-        let shape32_out1: [i64; 4] = add29_out1
-            .clone()
-            .dims()[0..4]
+        let shape32_out1: [i64; 4] = add29_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -2143,11 +2027,10 @@ impl<B: Backend> Model<B> {
         let cast48_out1 = div23_out1;
         let transpose17_out1 = add30_out1.permute([0, 1, 3, 2]);
         let sqrt14_out1 = cast48_out1.clone().sqrt();
-        let mul56_out1 = add29_out1
-            .mul(sqrt14_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul56_out1 = add29_out1.mul(sqrt14_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let sqrt15_out1 = cast48_out1.sqrt();
-        let mul57_out1 = transpose17_out1
-            .mul(sqrt15_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul57_out1 =
+            transpose17_out1.mul(sqrt15_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let matmul28_out1 = mul56_out1.matmul(mul57_out1);
         let add31_out1 = matmul28_out1.add(where3_out1.clone());
         let softmax5_out1 = burn::tensor::activation::softmax(add31_out1, 3);
@@ -2161,9 +2044,9 @@ impl<B: Backend> Model<B> {
             &constant271_out1[..],
             &constant272_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape13_out1 = transpose18_out1.reshape(concat25_out1);
         let matmul30_out1 = self.matmul30.forward(reshape13_out1);
         let add32_out1 = add28_out1.add(matmul30_out1);
@@ -2174,9 +2057,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul31_out1 = self.matmul31.forward(layernormalization10_out1);
-        let shape33_out1: [i64; 3] = matmul31_out1
-            .clone()
-            .dims()[0..3]
+        let shape33_out1: [i64; 3] = matmul31_out1.clone().dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -2199,8 +2080,7 @@ impl<B: Backend> Model<B> {
         let constant276_out1: [i64; 1] = [1i64];
         let add33_out1 = {
             let mut result = gather26_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant276_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant276_out1.iter()) {
                 *result_item = result_item.saturating_add(*rhs_item);
             }
             result
@@ -2208,8 +2088,7 @@ impl<B: Backend> Model<B> {
         let constant277_out1: [i64; 1] = [2i64];
         let div24_out1 = {
             let mut result = add33_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant277_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant277_out1.iter()) {
                 *result_item = if *rhs_item != 0 {
                     *result_item / *rhs_item
                 } else {
@@ -2221,8 +2100,7 @@ impl<B: Backend> Model<B> {
         let constant278_out1: [i64; 1] = [1i64];
         let mul58_out1 = {
             let mut result = div24_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant278_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant278_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
@@ -2231,8 +2109,7 @@ impl<B: Backend> Model<B> {
         let constant279_out1: [i64; 1] = [2i64];
         let mul59_out1 = {
             let mut result = div24_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant279_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant279_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
@@ -2256,8 +2133,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul33_out1 = self.matmul33.forward(layernormalization11_out1.clone());
-        let shape34_out1: [i64; 3] = layernormalization11_out1
-            .dims()[0..3]
+        let shape34_out1: [i64; 3] = layernormalization11_out1.dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -2282,9 +2158,9 @@ impl<B: Backend> Model<B> {
             &constant288_out1[..],
             &constant289_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape14_out1 = matmul33_out1.reshape(concat26_out1);
         let transpose19_out1 = reshape14_out1.permute([0, 3, 2, 1, 4]);
         let split_tensors = transpose19_out1.split_with_sizes([1, 1, 1].to_vec(), 2);
@@ -2293,9 +2169,7 @@ impl<B: Backend> Model<B> {
         let squeeze17_out1 = split6_out2.squeeze_dims(&[2]);
         let squeeze18_out1 = split6_out3.squeeze_dims(&[2]);
         let mul63_out1 = squeeze16_out1.clone().mul(unsqueeze22_out1.clone());
-        let shape35_out1: [i64; 4] = squeeze16_out1
-            .clone()
-            .dims()[0..4]
+        let shape35_out1: [i64; 4] = squeeze16_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -2317,19 +2191,14 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze48_out1[0]]);
         let unsqueeze49_out1 = [cast50_out1];
-        let slice37_out1 = squeeze16_out1
-            .slice(s![.., .., .., unsqueeze49_out1[0]..9223372036854775807]);
+        let slice37_out1 =
+            squeeze16_out1.slice(s![.., .., .., unsqueeze49_out1[0]..9223372036854775807]);
         let neg11_out1 = slice37_out1.neg();
-        let concat27_out1 = burn::tensor::Tensor::cat(
-            [neg11_out1, slice36_out1].into(),
-            3,
-        );
+        let concat27_out1 = burn::tensor::Tensor::cat([neg11_out1, slice36_out1].into(), 3);
         let mul64_out1 = concat27_out1.mul(unsqueeze23_out1.clone());
         let add36_out1 = mul63_out1.add(mul64_out1);
         let mul65_out1 = squeeze17_out1.clone().mul(unsqueeze22_out1.clone());
-        let shape36_out1: [i64; 4] = squeeze17_out1
-            .clone()
-            .dims()[0..4]
+        let shape36_out1: [i64; 4] = squeeze17_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -2351,18 +2220,13 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze50_out1[0]]);
         let unsqueeze51_out1 = [cast52_out1];
-        let slice39_out1 = squeeze17_out1
-            .slice(s![.., .., .., unsqueeze51_out1[0]..9223372036854775807]);
+        let slice39_out1 =
+            squeeze17_out1.slice(s![.., .., .., unsqueeze51_out1[0]..9223372036854775807]);
         let neg12_out1 = slice39_out1.neg();
-        let concat28_out1 = burn::tensor::Tensor::cat(
-            [neg12_out1, slice38_out1].into(),
-            3,
-        );
+        let concat28_out1 = burn::tensor::Tensor::cat([neg12_out1, slice38_out1].into(), 3);
         let mul66_out1 = concat28_out1.mul(unsqueeze23_out1.clone());
         let add37_out1 = mul65_out1.add(mul66_out1);
-        let shape37_out1: [i64; 4] = add36_out1
-            .clone()
-            .dims()[0..4]
+        let shape37_out1: [i64; 4] = add36_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -2380,11 +2244,10 @@ impl<B: Backend> Model<B> {
         let cast54_out1 = div28_out1;
         let transpose20_out1 = add37_out1.permute([0, 1, 3, 2]);
         let sqrt17_out1 = cast54_out1.clone().sqrt();
-        let mul67_out1 = add36_out1
-            .mul(sqrt17_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul67_out1 = add36_out1.mul(sqrt17_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let sqrt18_out1 = cast54_out1.sqrt();
-        let mul68_out1 = transpose20_out1
-            .mul(sqrt18_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul68_out1 =
+            transpose20_out1.mul(sqrt18_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let matmul34_out1 = mul67_out1.matmul(mul68_out1);
         let add38_out1 = matmul34_out1.add(where3_out1.clone());
         let softmax6_out1 = burn::tensor::activation::softmax(add38_out1, 3);
@@ -2398,9 +2261,9 @@ impl<B: Backend> Model<B> {
             &constant318_out1[..],
             &constant319_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape15_out1 = transpose21_out1.reshape(concat29_out1);
         let matmul36_out1 = self.matmul36.forward(reshape15_out1);
         let add39_out1 = add35_out1.add(matmul36_out1);
@@ -2411,9 +2274,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul37_out1 = self.matmul37.forward(layernormalization12_out1);
-        let shape38_out1: [i64; 3] = matmul37_out1
-            .clone()
-            .dims()[0..3]
+        let shape38_out1: [i64; 3] = matmul37_out1.clone().dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -2436,8 +2297,7 @@ impl<B: Backend> Model<B> {
         let constant323_out1: [i64; 1] = [1i64];
         let add40_out1 = {
             let mut result = gather30_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant323_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant323_out1.iter()) {
                 *result_item = result_item.saturating_add(*rhs_item);
             }
             result
@@ -2445,8 +2305,7 @@ impl<B: Backend> Model<B> {
         let constant324_out1: [i64; 1] = [2i64];
         let div29_out1 = {
             let mut result = add40_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant324_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant324_out1.iter()) {
                 *result_item = if *rhs_item != 0 {
                     *result_item / *rhs_item
                 } else {
@@ -2458,8 +2317,7 @@ impl<B: Backend> Model<B> {
         let constant325_out1: [i64; 1] = [1i64];
         let mul69_out1 = {
             let mut result = div29_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant325_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant325_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
@@ -2468,8 +2326,7 @@ impl<B: Backend> Model<B> {
         let constant326_out1: [i64; 1] = [2i64];
         let mul70_out1 = {
             let mut result = div29_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant326_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant326_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
@@ -2493,8 +2350,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul39_out1 = self.matmul39.forward(layernormalization13_out1.clone());
-        let shape39_out1: [i64; 3] = layernormalization13_out1
-            .dims()[0..3]
+        let shape39_out1: [i64; 3] = layernormalization13_out1.dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -2519,9 +2375,9 @@ impl<B: Backend> Model<B> {
             &constant335_out1[..],
             &constant336_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape16_out1 = matmul39_out1.reshape(concat30_out1);
         let transpose22_out1 = reshape16_out1.permute([0, 3, 2, 1, 4]);
         let split_tensors = transpose22_out1.split_with_sizes([1, 1, 1].to_vec(), 2);
@@ -2530,9 +2386,7 @@ impl<B: Backend> Model<B> {
         let squeeze20_out1 = split7_out2.squeeze_dims(&[2]);
         let squeeze21_out1 = split7_out3.squeeze_dims(&[2]);
         let mul74_out1 = squeeze19_out1.clone().mul(unsqueeze13_out1.clone());
-        let shape40_out1: [i64; 4] = squeeze19_out1
-            .clone()
-            .dims()[0..4]
+        let shape40_out1: [i64; 4] = squeeze19_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -2554,19 +2408,14 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze54_out1[0]]);
         let unsqueeze55_out1 = [cast56_out1];
-        let slice44_out1 = squeeze19_out1
-            .slice(s![.., .., .., unsqueeze55_out1[0]..9223372036854775807]);
+        let slice44_out1 =
+            squeeze19_out1.slice(s![.., .., .., unsqueeze55_out1[0]..9223372036854775807]);
         let neg13_out1 = slice44_out1.neg();
-        let concat31_out1 = burn::tensor::Tensor::cat(
-            [neg13_out1, slice43_out1].into(),
-            3,
-        );
+        let concat31_out1 = burn::tensor::Tensor::cat([neg13_out1, slice43_out1].into(), 3);
         let mul75_out1 = concat31_out1.mul(unsqueeze14_out1.clone());
         let add43_out1 = mul74_out1.add(mul75_out1);
         let mul76_out1 = squeeze20_out1.clone().mul(unsqueeze13_out1.clone());
-        let shape41_out1: [i64; 4] = squeeze20_out1
-            .clone()
-            .dims()[0..4]
+        let shape41_out1: [i64; 4] = squeeze20_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -2588,18 +2437,13 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze56_out1[0]]);
         let unsqueeze57_out1 = [cast58_out1];
-        let slice46_out1 = squeeze20_out1
-            .slice(s![.., .., .., unsqueeze57_out1[0]..9223372036854775807]);
+        let slice46_out1 =
+            squeeze20_out1.slice(s![.., .., .., unsqueeze57_out1[0]..9223372036854775807]);
         let neg14_out1 = slice46_out1.neg();
-        let concat32_out1 = burn::tensor::Tensor::cat(
-            [neg14_out1, slice45_out1].into(),
-            3,
-        );
+        let concat32_out1 = burn::tensor::Tensor::cat([neg14_out1, slice45_out1].into(), 3);
         let mul77_out1 = concat32_out1.mul(unsqueeze14_out1.clone());
         let add44_out1 = mul76_out1.add(mul77_out1);
-        let shape42_out1: [i64; 4] = add43_out1
-            .clone()
-            .dims()[0..4]
+        let shape42_out1: [i64; 4] = add43_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -2617,11 +2461,10 @@ impl<B: Backend> Model<B> {
         let cast60_out1 = div33_out1;
         let transpose23_out1 = add44_out1.permute([0, 1, 3, 2]);
         let sqrt20_out1 = cast60_out1.clone().sqrt();
-        let mul78_out1 = add43_out1
-            .mul(sqrt20_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul78_out1 = add43_out1.mul(sqrt20_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let sqrt21_out1 = cast60_out1.sqrt();
-        let mul79_out1 = transpose23_out1
-            .mul(sqrt21_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul79_out1 =
+            transpose23_out1.mul(sqrt21_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let matmul40_out1 = mul78_out1.matmul(mul79_out1);
         let add45_out1 = matmul40_out1.add(where2_out1.clone());
         let softmax7_out1 = burn::tensor::activation::softmax(add45_out1, 3);
@@ -2635,9 +2478,9 @@ impl<B: Backend> Model<B> {
             &constant365_out1[..],
             &constant366_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape17_out1 = transpose24_out1.reshape(concat33_out1);
         let matmul42_out1 = self.matmul42.forward(reshape17_out1);
         let add46_out1 = add42_out1.add(matmul42_out1);
@@ -2648,9 +2491,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul43_out1 = self.matmul43.forward(layernormalization14_out1);
-        let shape43_out1: [i64; 3] = matmul43_out1
-            .clone()
-            .dims()[0..3]
+        let shape43_out1: [i64; 3] = matmul43_out1.clone().dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -2673,8 +2514,7 @@ impl<B: Backend> Model<B> {
         let constant370_out1: [i64; 1] = [1i64];
         let add47_out1 = {
             let mut result = gather34_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant370_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant370_out1.iter()) {
                 *result_item = result_item.saturating_add(*rhs_item);
             }
             result
@@ -2682,8 +2522,7 @@ impl<B: Backend> Model<B> {
         let constant371_out1: [i64; 1] = [2i64];
         let div34_out1 = {
             let mut result = add47_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant371_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant371_out1.iter()) {
                 *result_item = if *rhs_item != 0 {
                     *result_item / *rhs_item
                 } else {
@@ -2695,8 +2534,7 @@ impl<B: Backend> Model<B> {
         let constant372_out1: [i64; 1] = [1i64];
         let mul80_out1 = {
             let mut result = div34_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant372_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant372_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
@@ -2705,8 +2543,7 @@ impl<B: Backend> Model<B> {
         let constant373_out1: [i64; 1] = [2i64];
         let mul81_out1 = {
             let mut result = div34_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant373_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant373_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
@@ -2730,8 +2567,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul45_out1 = self.matmul45.forward(layernormalization15_out1.clone());
-        let shape44_out1: [i64; 3] = layernormalization15_out1
-            .dims()[0..3]
+        let shape44_out1: [i64; 3] = layernormalization15_out1.dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -2756,9 +2592,9 @@ impl<B: Backend> Model<B> {
             &constant382_out1[..],
             &constant383_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape18_out1 = matmul45_out1.reshape(concat34_out1);
         let transpose25_out1 = reshape18_out1.permute([0, 3, 2, 1, 4]);
         let split_tensors = transpose25_out1.split_with_sizes([1, 1, 1].to_vec(), 2);
@@ -2767,9 +2603,7 @@ impl<B: Backend> Model<B> {
         let squeeze23_out1 = split8_out2.squeeze_dims(&[2]);
         let squeeze24_out1 = split8_out3.squeeze_dims(&[2]);
         let mul85_out1 = squeeze22_out1.clone().mul(unsqueeze22_out1.clone());
-        let shape45_out1: [i64; 4] = squeeze22_out1
-            .clone()
-            .dims()[0..4]
+        let shape45_out1: [i64; 4] = squeeze22_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -2791,19 +2625,14 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze60_out1[0]]);
         let unsqueeze61_out1 = [cast62_out1];
-        let slice51_out1 = squeeze22_out1
-            .slice(s![.., .., .., unsqueeze61_out1[0]..9223372036854775807]);
+        let slice51_out1 =
+            squeeze22_out1.slice(s![.., .., .., unsqueeze61_out1[0]..9223372036854775807]);
         let neg15_out1 = slice51_out1.neg();
-        let concat35_out1 = burn::tensor::Tensor::cat(
-            [neg15_out1, slice50_out1].into(),
-            3,
-        );
+        let concat35_out1 = burn::tensor::Tensor::cat([neg15_out1, slice50_out1].into(), 3);
         let mul86_out1 = concat35_out1.mul(unsqueeze23_out1.clone());
         let add50_out1 = mul85_out1.add(mul86_out1);
         let mul87_out1 = squeeze23_out1.clone().mul(unsqueeze22_out1.clone());
-        let shape46_out1: [i64; 4] = squeeze23_out1
-            .clone()
-            .dims()[0..4]
+        let shape46_out1: [i64; 4] = squeeze23_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -2825,18 +2654,13 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze62_out1[0]]);
         let unsqueeze63_out1 = [cast64_out1];
-        let slice53_out1 = squeeze23_out1
-            .slice(s![.., .., .., unsqueeze63_out1[0]..9223372036854775807]);
+        let slice53_out1 =
+            squeeze23_out1.slice(s![.., .., .., unsqueeze63_out1[0]..9223372036854775807]);
         let neg16_out1 = slice53_out1.neg();
-        let concat36_out1 = burn::tensor::Tensor::cat(
-            [neg16_out1, slice52_out1].into(),
-            3,
-        );
+        let concat36_out1 = burn::tensor::Tensor::cat([neg16_out1, slice52_out1].into(), 3);
         let mul88_out1 = concat36_out1.mul(unsqueeze23_out1.clone());
         let add51_out1 = mul87_out1.add(mul88_out1);
-        let shape47_out1: [i64; 4] = add50_out1
-            .clone()
-            .dims()[0..4]
+        let shape47_out1: [i64; 4] = add50_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -2854,11 +2678,10 @@ impl<B: Backend> Model<B> {
         let cast66_out1 = div38_out1;
         let transpose26_out1 = add51_out1.permute([0, 1, 3, 2]);
         let sqrt23_out1 = cast66_out1.clone().sqrt();
-        let mul89_out1 = add50_out1
-            .mul(sqrt23_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul89_out1 = add50_out1.mul(sqrt23_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let sqrt24_out1 = cast66_out1.sqrt();
-        let mul90_out1 = transpose26_out1
-            .mul(sqrt24_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul90_out1 =
+            transpose26_out1.mul(sqrt24_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let matmul46_out1 = mul89_out1.matmul(mul90_out1);
         let add52_out1 = matmul46_out1.add(where3_out1.clone());
         let softmax8_out1 = burn::tensor::activation::softmax(add52_out1, 3);
@@ -2872,9 +2695,9 @@ impl<B: Backend> Model<B> {
             &constant412_out1[..],
             &constant413_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape19_out1 = transpose27_out1.reshape(concat37_out1);
         let matmul48_out1 = self.matmul48.forward(reshape19_out1);
         let add53_out1 = add49_out1.add(matmul48_out1);
@@ -2885,9 +2708,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul49_out1 = self.matmul49.forward(layernormalization16_out1);
-        let shape48_out1: [i64; 3] = matmul49_out1
-            .clone()
-            .dims()[0..3]
+        let shape48_out1: [i64; 3] = matmul49_out1.clone().dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -2910,8 +2731,7 @@ impl<B: Backend> Model<B> {
         let constant417_out1: [i64; 1] = [1i64];
         let add54_out1 = {
             let mut result = gather38_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant417_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant417_out1.iter()) {
                 *result_item = result_item.saturating_add(*rhs_item);
             }
             result
@@ -2919,8 +2739,7 @@ impl<B: Backend> Model<B> {
         let constant418_out1: [i64; 1] = [2i64];
         let div39_out1 = {
             let mut result = add54_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant418_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant418_out1.iter()) {
                 *result_item = if *rhs_item != 0 {
                     *result_item / *rhs_item
                 } else {
@@ -2932,8 +2751,7 @@ impl<B: Backend> Model<B> {
         let constant419_out1: [i64; 1] = [1i64];
         let mul91_out1 = {
             let mut result = div39_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant419_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant419_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
@@ -2942,8 +2760,7 @@ impl<B: Backend> Model<B> {
         let constant420_out1: [i64; 1] = [2i64];
         let mul92_out1 = {
             let mut result = div39_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant420_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant420_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
@@ -2967,8 +2784,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul51_out1 = self.matmul51.forward(layernormalization17_out1.clone());
-        let shape49_out1: [i64; 3] = layernormalization17_out1
-            .dims()[0..3]
+        let shape49_out1: [i64; 3] = layernormalization17_out1.dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -2993,9 +2809,9 @@ impl<B: Backend> Model<B> {
             &constant429_out1[..],
             &constant430_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape20_out1 = matmul51_out1.reshape(concat38_out1);
         let transpose28_out1 = reshape20_out1.permute([0, 3, 2, 1, 4]);
         let split_tensors = transpose28_out1.split_with_sizes([1, 1, 1].to_vec(), 2);
@@ -3004,9 +2820,7 @@ impl<B: Backend> Model<B> {
         let squeeze26_out1 = split9_out2.squeeze_dims(&[2]);
         let squeeze27_out1 = split9_out3.squeeze_dims(&[2]);
         let mul96_out1 = squeeze25_out1.clone().mul(unsqueeze22_out1.clone());
-        let shape50_out1: [i64; 4] = squeeze25_out1
-            .clone()
-            .dims()[0..4]
+        let shape50_out1: [i64; 4] = squeeze25_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -3028,19 +2842,14 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze66_out1[0]]);
         let unsqueeze67_out1 = [cast68_out1];
-        let slice58_out1 = squeeze25_out1
-            .slice(s![.., .., .., unsqueeze67_out1[0]..9223372036854775807]);
+        let slice58_out1 =
+            squeeze25_out1.slice(s![.., .., .., unsqueeze67_out1[0]..9223372036854775807]);
         let neg17_out1 = slice58_out1.neg();
-        let concat39_out1 = burn::tensor::Tensor::cat(
-            [neg17_out1, slice57_out1].into(),
-            3,
-        );
+        let concat39_out1 = burn::tensor::Tensor::cat([neg17_out1, slice57_out1].into(), 3);
         let mul97_out1 = concat39_out1.mul(unsqueeze23_out1.clone());
         let add57_out1 = mul96_out1.add(mul97_out1);
         let mul98_out1 = squeeze26_out1.clone().mul(unsqueeze22_out1.clone());
-        let shape51_out1: [i64; 4] = squeeze26_out1
-            .clone()
-            .dims()[0..4]
+        let shape51_out1: [i64; 4] = squeeze26_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -3062,18 +2871,13 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze68_out1[0]]);
         let unsqueeze69_out1 = [cast70_out1];
-        let slice60_out1 = squeeze26_out1
-            .slice(s![.., .., .., unsqueeze69_out1[0]..9223372036854775807]);
+        let slice60_out1 =
+            squeeze26_out1.slice(s![.., .., .., unsqueeze69_out1[0]..9223372036854775807]);
         let neg18_out1 = slice60_out1.neg();
-        let concat40_out1 = burn::tensor::Tensor::cat(
-            [neg18_out1, slice59_out1].into(),
-            3,
-        );
+        let concat40_out1 = burn::tensor::Tensor::cat([neg18_out1, slice59_out1].into(), 3);
         let mul99_out1 = concat40_out1.mul(unsqueeze23_out1.clone());
         let add58_out1 = mul98_out1.add(mul99_out1);
-        let shape52_out1: [i64; 4] = add57_out1
-            .clone()
-            .dims()[0..4]
+        let shape52_out1: [i64; 4] = add57_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -3091,11 +2895,10 @@ impl<B: Backend> Model<B> {
         let cast72_out1 = div43_out1;
         let transpose29_out1 = add58_out1.permute([0, 1, 3, 2]);
         let sqrt26_out1 = cast72_out1.clone().sqrt();
-        let mul100_out1 = add57_out1
-            .mul(sqrt26_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul100_out1 = add57_out1.mul(sqrt26_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let sqrt27_out1 = cast72_out1.sqrt();
-        let mul101_out1 = transpose29_out1
-            .mul(sqrt27_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul101_out1 =
+            transpose29_out1.mul(sqrt27_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let matmul52_out1 = mul100_out1.matmul(mul101_out1);
         let add59_out1 = matmul52_out1.add(where3_out1.clone());
         let softmax9_out1 = burn::tensor::activation::softmax(add59_out1, 3);
@@ -3109,9 +2912,9 @@ impl<B: Backend> Model<B> {
             &constant459_out1[..],
             &constant460_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape21_out1 = transpose30_out1.reshape(concat41_out1);
         let matmul54_out1 = self.matmul54.forward(reshape21_out1);
         let add60_out1 = add56_out1.add(matmul54_out1);
@@ -3122,9 +2925,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul55_out1 = self.matmul55.forward(layernormalization18_out1);
-        let shape53_out1: [i64; 3] = matmul55_out1
-            .clone()
-            .dims()[0..3]
+        let shape53_out1: [i64; 3] = matmul55_out1.clone().dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -3147,8 +2948,7 @@ impl<B: Backend> Model<B> {
         let constant464_out1: [i64; 1] = [1i64];
         let add61_out1 = {
             let mut result = gather42_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant464_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant464_out1.iter()) {
                 *result_item = result_item.saturating_add(*rhs_item);
             }
             result
@@ -3156,8 +2956,7 @@ impl<B: Backend> Model<B> {
         let constant465_out1: [i64; 1] = [2i64];
         let div44_out1 = {
             let mut result = add61_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant465_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant465_out1.iter()) {
                 *result_item = if *rhs_item != 0 {
                     *result_item / *rhs_item
                 } else {
@@ -3169,8 +2968,7 @@ impl<B: Backend> Model<B> {
         let constant466_out1: [i64; 1] = [1i64];
         let mul102_out1 = {
             let mut result = div44_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant466_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant466_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
@@ -3179,14 +2977,12 @@ impl<B: Backend> Model<B> {
         let constant467_out1: [i64; 1] = [2i64];
         let mul103_out1 = {
             let mut result = div44_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant467_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant467_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
         };
-        let slice63_out1 = matmul55_out1
-            .slice(s![.., .., mul102_out1[0]..mul103_out1[0]]);
+        let slice63_out1 = matmul55_out1.slice(s![.., .., mul102_out1[0]..mul103_out1[0]]);
         let constant468_out1: f32 = 1.4142135f32;
         let div45_out1 = slice62_out1.clone().div_scalar(constant468_out1);
         let erf9_out1 = div45_out1.erf();
@@ -3205,8 +3001,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul57_out1 = self.matmul57.forward(layernormalization19_out1.clone());
-        let shape54_out1: [i64; 3] = layernormalization19_out1
-            .dims()[0..3]
+        let shape54_out1: [i64; 3] = layernormalization19_out1.dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -3231,22 +3026,18 @@ impl<B: Backend> Model<B> {
             &constant476_out1[..],
             &constant477_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape22_out1 = matmul57_out1.reshape(concat42_out1);
         let transpose31_out1 = reshape22_out1.permute([0, 3, 2, 1, 4]);
         let split_tensors = transpose31_out1.split_with_sizes([1, 1, 1].to_vec(), 2);
-        let [split10_out1, split10_out2, split10_out3] = split_tensors
-            .try_into()
-            .unwrap();
+        let [split10_out1, split10_out2, split10_out3] = split_tensors.try_into().unwrap();
         let squeeze28_out1 = split10_out1.squeeze_dims(&[2]);
         let squeeze29_out1 = split10_out2.squeeze_dims(&[2]);
         let squeeze30_out1 = split10_out3.squeeze_dims(&[2]);
         let mul107_out1 = squeeze28_out1.clone().mul(unsqueeze13_out1.clone());
-        let shape55_out1: [i64; 4] = squeeze28_out1
-            .clone()
-            .dims()[0..4]
+        let shape55_out1: [i64; 4] = squeeze28_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -3268,19 +3059,14 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze72_out1[0]]);
         let unsqueeze73_out1 = [cast74_out1];
-        let slice65_out1 = squeeze28_out1
-            .slice(s![.., .., .., unsqueeze73_out1[0]..9223372036854775807]);
+        let slice65_out1 =
+            squeeze28_out1.slice(s![.., .., .., unsqueeze73_out1[0]..9223372036854775807]);
         let neg19_out1 = slice65_out1.neg();
-        let concat43_out1 = burn::tensor::Tensor::cat(
-            [neg19_out1, slice64_out1].into(),
-            3,
-        );
+        let concat43_out1 = burn::tensor::Tensor::cat([neg19_out1, slice64_out1].into(), 3);
         let mul108_out1 = concat43_out1.mul(unsqueeze14_out1.clone());
         let add64_out1 = mul107_out1.add(mul108_out1);
         let mul109_out1 = squeeze29_out1.clone().mul(unsqueeze13_out1.clone());
-        let shape56_out1: [i64; 4] = squeeze29_out1
-            .clone()
-            .dims()[0..4]
+        let shape56_out1: [i64; 4] = squeeze29_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -3302,18 +3088,13 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze74_out1[0]]);
         let unsqueeze75_out1 = [cast76_out1];
-        let slice67_out1 = squeeze29_out1
-            .slice(s![.., .., .., unsqueeze75_out1[0]..9223372036854775807]);
+        let slice67_out1 =
+            squeeze29_out1.slice(s![.., .., .., unsqueeze75_out1[0]..9223372036854775807]);
         let neg20_out1 = slice67_out1.neg();
-        let concat44_out1 = burn::tensor::Tensor::cat(
-            [neg20_out1, slice66_out1].into(),
-            3,
-        );
+        let concat44_out1 = burn::tensor::Tensor::cat([neg20_out1, slice66_out1].into(), 3);
         let mul110_out1 = concat44_out1.mul(unsqueeze14_out1.clone());
         let add65_out1 = mul109_out1.add(mul110_out1);
-        let shape57_out1: [i64; 4] = add64_out1
-            .clone()
-            .dims()[0..4]
+        let shape57_out1: [i64; 4] = add64_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -3331,11 +3112,10 @@ impl<B: Backend> Model<B> {
         let cast78_out1 = div48_out1;
         let transpose32_out1 = add65_out1.permute([0, 1, 3, 2]);
         let sqrt29_out1 = cast78_out1.clone().sqrt();
-        let mul111_out1 = add64_out1
-            .mul(sqrt29_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul111_out1 = add64_out1.mul(sqrt29_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let sqrt30_out1 = cast78_out1.sqrt();
-        let mul112_out1 = transpose32_out1
-            .mul(sqrt30_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul112_out1 =
+            transpose32_out1.mul(sqrt30_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let matmul58_out1 = mul111_out1.matmul(mul112_out1);
         let add66_out1 = matmul58_out1.add(where2_out1.clone());
         let softmax10_out1 = burn::tensor::activation::softmax(add66_out1, 3);
@@ -3349,9 +3129,9 @@ impl<B: Backend> Model<B> {
             &constant506_out1[..],
             &constant507_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape23_out1 = transpose33_out1.reshape(concat45_out1);
         let matmul60_out1 = self.matmul60.forward(reshape23_out1);
         let add67_out1 = add63_out1.add(matmul60_out1);
@@ -3362,9 +3142,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul61_out1 = self.matmul61.forward(layernormalization20_out1);
-        let shape58_out1: [i64; 3] = matmul61_out1
-            .clone()
-            .dims()[0..3]
+        let shape58_out1: [i64; 3] = matmul61_out1.clone().dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -3387,8 +3165,7 @@ impl<B: Backend> Model<B> {
         let constant511_out1: [i64; 1] = [1i64];
         let add68_out1 = {
             let mut result = gather46_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant511_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant511_out1.iter()) {
                 *result_item = result_item.saturating_add(*rhs_item);
             }
             result
@@ -3396,8 +3173,7 @@ impl<B: Backend> Model<B> {
         let constant512_out1: [i64; 1] = [2i64];
         let div49_out1 = {
             let mut result = add68_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant512_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant512_out1.iter()) {
                 *result_item = if *rhs_item != 0 {
                     *result_item / *rhs_item
                 } else {
@@ -3409,8 +3185,7 @@ impl<B: Backend> Model<B> {
         let constant513_out1: [i64; 1] = [1i64];
         let mul113_out1 = {
             let mut result = div49_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant513_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant513_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
@@ -3419,14 +3194,12 @@ impl<B: Backend> Model<B> {
         let constant514_out1: [i64; 1] = [2i64];
         let mul114_out1 = {
             let mut result = div49_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant514_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant514_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
         };
-        let slice70_out1 = matmul61_out1
-            .slice(s![.., .., mul113_out1[0]..mul114_out1[0]]);
+        let slice70_out1 = matmul61_out1.slice(s![.., .., mul113_out1[0]..mul114_out1[0]]);
         let constant515_out1: f32 = 1.4142135f32;
         let div50_out1 = slice69_out1.clone().div_scalar(constant515_out1);
         let erf10_out1 = div50_out1.erf();
@@ -3445,8 +3218,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul63_out1 = self.matmul63.forward(layernormalization21_out1.clone());
-        let shape59_out1: [i64; 3] = layernormalization21_out1
-            .dims()[0..3]
+        let shape59_out1: [i64; 3] = layernormalization21_out1.dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -3471,22 +3243,18 @@ impl<B: Backend> Model<B> {
             &constant523_out1[..],
             &constant524_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape24_out1 = matmul63_out1.reshape(concat46_out1);
         let transpose34_out1 = reshape24_out1.permute([0, 3, 2, 1, 4]);
         let split_tensors = transpose34_out1.split_with_sizes([1, 1, 1].to_vec(), 2);
-        let [split11_out1, split11_out2, split11_out3] = split_tensors
-            .try_into()
-            .unwrap();
+        let [split11_out1, split11_out2, split11_out3] = split_tensors.try_into().unwrap();
         let squeeze31_out1 = split11_out1.squeeze_dims(&[2]);
         let squeeze32_out1 = split11_out2.squeeze_dims(&[2]);
         let squeeze33_out1 = split11_out3.squeeze_dims(&[2]);
         let mul118_out1 = squeeze31_out1.clone().mul(unsqueeze22_out1.clone());
-        let shape60_out1: [i64; 4] = squeeze31_out1
-            .clone()
-            .dims()[0..4]
+        let shape60_out1: [i64; 4] = squeeze31_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -3508,19 +3276,14 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze78_out1[0]]);
         let unsqueeze79_out1 = [cast80_out1];
-        let slice72_out1 = squeeze31_out1
-            .slice(s![.., .., .., unsqueeze79_out1[0]..9223372036854775807]);
+        let slice72_out1 =
+            squeeze31_out1.slice(s![.., .., .., unsqueeze79_out1[0]..9223372036854775807]);
         let neg21_out1 = slice72_out1.neg();
-        let concat47_out1 = burn::tensor::Tensor::cat(
-            [neg21_out1, slice71_out1].into(),
-            3,
-        );
+        let concat47_out1 = burn::tensor::Tensor::cat([neg21_out1, slice71_out1].into(), 3);
         let mul119_out1 = concat47_out1.mul(unsqueeze23_out1.clone());
         let add71_out1 = mul118_out1.add(mul119_out1);
         let mul120_out1 = squeeze32_out1.clone().mul(unsqueeze22_out1.clone());
-        let shape61_out1: [i64; 4] = squeeze32_out1
-            .clone()
-            .dims()[0..4]
+        let shape61_out1: [i64; 4] = squeeze32_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -3542,18 +3305,13 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze80_out1[0]]);
         let unsqueeze81_out1 = [cast82_out1];
-        let slice74_out1 = squeeze32_out1
-            .slice(s![.., .., .., unsqueeze81_out1[0]..9223372036854775807]);
+        let slice74_out1 =
+            squeeze32_out1.slice(s![.., .., .., unsqueeze81_out1[0]..9223372036854775807]);
         let neg22_out1 = slice74_out1.neg();
-        let concat48_out1 = burn::tensor::Tensor::cat(
-            [neg22_out1, slice73_out1].into(),
-            3,
-        );
+        let concat48_out1 = burn::tensor::Tensor::cat([neg22_out1, slice73_out1].into(), 3);
         let mul121_out1 = concat48_out1.mul(unsqueeze23_out1.clone());
         let add72_out1 = mul120_out1.add(mul121_out1);
-        let shape62_out1: [i64; 4] = add71_out1
-            .clone()
-            .dims()[0..4]
+        let shape62_out1: [i64; 4] = add71_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -3571,11 +3329,10 @@ impl<B: Backend> Model<B> {
         let cast84_out1 = div53_out1;
         let transpose35_out1 = add72_out1.permute([0, 1, 3, 2]);
         let sqrt32_out1 = cast84_out1.clone().sqrt();
-        let mul122_out1 = add71_out1
-            .mul(sqrt32_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul122_out1 = add71_out1.mul(sqrt32_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let sqrt33_out1 = cast84_out1.sqrt();
-        let mul123_out1 = transpose35_out1
-            .mul(sqrt33_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul123_out1 =
+            transpose35_out1.mul(sqrt33_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let matmul64_out1 = mul122_out1.matmul(mul123_out1);
         let add73_out1 = matmul64_out1.add(where3_out1.clone());
         let softmax11_out1 = burn::tensor::activation::softmax(add73_out1, 3);
@@ -3589,9 +3346,9 @@ impl<B: Backend> Model<B> {
             &constant553_out1[..],
             &constant554_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape25_out1 = transpose36_out1.reshape(concat49_out1);
         let matmul66_out1 = self.matmul66.forward(reshape25_out1);
         let add74_out1 = add70_out1.add(matmul66_out1);
@@ -3602,9 +3359,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul67_out1 = self.matmul67.forward(layernormalization22_out1);
-        let shape63_out1: [i64; 3] = matmul67_out1
-            .clone()
-            .dims()[0..3]
+        let shape63_out1: [i64; 3] = matmul67_out1.clone().dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -3627,8 +3382,7 @@ impl<B: Backend> Model<B> {
         let constant558_out1: [i64; 1] = [1i64];
         let add75_out1 = {
             let mut result = gather50_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant558_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant558_out1.iter()) {
                 *result_item = result_item.saturating_add(*rhs_item);
             }
             result
@@ -3636,8 +3390,7 @@ impl<B: Backend> Model<B> {
         let constant559_out1: [i64; 1] = [2i64];
         let div54_out1 = {
             let mut result = add75_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant559_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant559_out1.iter()) {
                 *result_item = if *rhs_item != 0 {
                     *result_item / *rhs_item
                 } else {
@@ -3649,8 +3402,7 @@ impl<B: Backend> Model<B> {
         let constant560_out1: [i64; 1] = [1i64];
         let mul124_out1 = {
             let mut result = div54_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant560_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant560_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
@@ -3659,14 +3411,12 @@ impl<B: Backend> Model<B> {
         let constant561_out1: [i64; 1] = [2i64];
         let mul125_out1 = {
             let mut result = div54_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant561_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant561_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
         };
-        let slice77_out1 = matmul67_out1
-            .slice(s![.., .., mul124_out1[0]..mul125_out1[0]]);
+        let slice77_out1 = matmul67_out1.slice(s![.., .., mul124_out1[0]..mul125_out1[0]]);
         let constant562_out1: f32 = 1.4142135f32;
         let div55_out1 = slice76_out1.clone().div_scalar(constant562_out1);
         let erf11_out1 = div55_out1.erf();
@@ -3685,8 +3435,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul69_out1 = self.matmul69.forward(layernormalization23_out1.clone());
-        let shape64_out1: [i64; 3] = layernormalization23_out1
-            .dims()[0..3]
+        let shape64_out1: [i64; 3] = layernormalization23_out1.dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -3711,22 +3460,18 @@ impl<B: Backend> Model<B> {
             &constant570_out1[..],
             &constant571_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape26_out1 = matmul69_out1.reshape(concat50_out1);
         let transpose37_out1 = reshape26_out1.permute([0, 3, 2, 1, 4]);
         let split_tensors = transpose37_out1.split_with_sizes([1, 1, 1].to_vec(), 2);
-        let [split12_out1, split12_out2, split12_out3] = split_tensors
-            .try_into()
-            .unwrap();
+        let [split12_out1, split12_out2, split12_out3] = split_tensors.try_into().unwrap();
         let squeeze34_out1 = split12_out1.squeeze_dims(&[2]);
         let squeeze35_out1 = split12_out2.squeeze_dims(&[2]);
         let squeeze36_out1 = split12_out3.squeeze_dims(&[2]);
         let mul129_out1 = squeeze34_out1.clone().mul(unsqueeze22_out1.clone());
-        let shape65_out1: [i64; 4] = squeeze34_out1
-            .clone()
-            .dims()[0..4]
+        let shape65_out1: [i64; 4] = squeeze34_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -3748,19 +3493,14 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze84_out1[0]]);
         let unsqueeze85_out1 = [cast86_out1];
-        let slice79_out1 = squeeze34_out1
-            .slice(s![.., .., .., unsqueeze85_out1[0]..9223372036854775807]);
+        let slice79_out1 =
+            squeeze34_out1.slice(s![.., .., .., unsqueeze85_out1[0]..9223372036854775807]);
         let neg23_out1 = slice79_out1.neg();
-        let concat51_out1 = burn::tensor::Tensor::cat(
-            [neg23_out1, slice78_out1].into(),
-            3,
-        );
+        let concat51_out1 = burn::tensor::Tensor::cat([neg23_out1, slice78_out1].into(), 3);
         let mul130_out1 = concat51_out1.mul(unsqueeze23_out1.clone());
         let add78_out1 = mul129_out1.add(mul130_out1);
         let mul131_out1 = squeeze35_out1.clone().mul(unsqueeze22_out1.clone());
-        let shape66_out1: [i64; 4] = squeeze35_out1
-            .clone()
-            .dims()[0..4]
+        let shape66_out1: [i64; 4] = squeeze35_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -3782,18 +3522,13 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze86_out1[0]]);
         let unsqueeze87_out1 = [cast88_out1];
-        let slice81_out1 = squeeze35_out1
-            .slice(s![.., .., .., unsqueeze87_out1[0]..9223372036854775807]);
+        let slice81_out1 =
+            squeeze35_out1.slice(s![.., .., .., unsqueeze87_out1[0]..9223372036854775807]);
         let neg24_out1 = slice81_out1.neg();
-        let concat52_out1 = burn::tensor::Tensor::cat(
-            [neg24_out1, slice80_out1].into(),
-            3,
-        );
+        let concat52_out1 = burn::tensor::Tensor::cat([neg24_out1, slice80_out1].into(), 3);
         let mul132_out1 = concat52_out1.mul(unsqueeze23_out1.clone());
         let add79_out1 = mul131_out1.add(mul132_out1);
-        let shape67_out1: [i64; 4] = add78_out1
-            .clone()
-            .dims()[0..4]
+        let shape67_out1: [i64; 4] = add78_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -3811,11 +3546,10 @@ impl<B: Backend> Model<B> {
         let cast90_out1 = div58_out1;
         let transpose38_out1 = add79_out1.permute([0, 1, 3, 2]);
         let sqrt35_out1 = cast90_out1.clone().sqrt();
-        let mul133_out1 = add78_out1
-            .mul(sqrt35_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul133_out1 = add78_out1.mul(sqrt35_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let sqrt36_out1 = cast90_out1.sqrt();
-        let mul134_out1 = transpose38_out1
-            .mul(sqrt36_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul134_out1 =
+            transpose38_out1.mul(sqrt36_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let matmul70_out1 = mul133_out1.matmul(mul134_out1);
         let add80_out1 = matmul70_out1.add(where3_out1.clone());
         let softmax12_out1 = burn::tensor::activation::softmax(add80_out1, 3);
@@ -3829,9 +3563,9 @@ impl<B: Backend> Model<B> {
             &constant600_out1[..],
             &constant601_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape27_out1 = transpose39_out1.reshape(concat53_out1);
         let matmul72_out1 = self.matmul72.forward(reshape27_out1);
         let add81_out1 = add77_out1.add(matmul72_out1);
@@ -3842,9 +3576,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul73_out1 = self.matmul73.forward(layernormalization24_out1);
-        let shape68_out1: [i64; 3] = matmul73_out1
-            .clone()
-            .dims()[0..3]
+        let shape68_out1: [i64; 3] = matmul73_out1.clone().dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -3867,8 +3599,7 @@ impl<B: Backend> Model<B> {
         let constant605_out1: [i64; 1] = [1i64];
         let add82_out1 = {
             let mut result = gather54_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant605_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant605_out1.iter()) {
                 *result_item = result_item.saturating_add(*rhs_item);
             }
             result
@@ -3876,8 +3607,7 @@ impl<B: Backend> Model<B> {
         let constant606_out1: [i64; 1] = [2i64];
         let div59_out1 = {
             let mut result = add82_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant606_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant606_out1.iter()) {
                 *result_item = if *rhs_item != 0 {
                     *result_item / *rhs_item
                 } else {
@@ -3889,8 +3619,7 @@ impl<B: Backend> Model<B> {
         let constant607_out1: [i64; 1] = [1i64];
         let mul135_out1 = {
             let mut result = div59_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant607_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant607_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
@@ -3899,14 +3628,12 @@ impl<B: Backend> Model<B> {
         let constant608_out1: [i64; 1] = [2i64];
         let mul136_out1 = {
             let mut result = div59_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant608_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant608_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
         };
-        let slice84_out1 = matmul73_out1
-            .slice(s![.., .., mul135_out1[0]..mul136_out1[0]]);
+        let slice84_out1 = matmul73_out1.slice(s![.., .., mul135_out1[0]..mul136_out1[0]]);
         let constant609_out1: f32 = 1.4142135f32;
         let div60_out1 = slice83_out1.clone().div_scalar(constant609_out1);
         let erf12_out1 = div60_out1.erf();
@@ -3925,8 +3652,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul75_out1 = self.matmul75.forward(layernormalization25_out1.clone());
-        let shape69_out1: [i64; 3] = layernormalization25_out1
-            .dims()[0..3]
+        let shape69_out1: [i64; 3] = layernormalization25_out1.dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -3951,22 +3677,18 @@ impl<B: Backend> Model<B> {
             &constant617_out1[..],
             &constant618_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape28_out1 = matmul75_out1.reshape(concat54_out1);
         let transpose40_out1 = reshape28_out1.permute([0, 3, 2, 1, 4]);
         let split_tensors = transpose40_out1.split_with_sizes([1, 1, 1].to_vec(), 2);
-        let [split13_out1, split13_out2, split13_out3] = split_tensors
-            .try_into()
-            .unwrap();
+        let [split13_out1, split13_out2, split13_out3] = split_tensors.try_into().unwrap();
         let squeeze37_out1 = split13_out1.squeeze_dims(&[2]);
         let squeeze38_out1 = split13_out2.squeeze_dims(&[2]);
         let squeeze39_out1 = split13_out3.squeeze_dims(&[2]);
         let mul140_out1 = squeeze37_out1.clone().mul(unsqueeze13_out1.clone());
-        let shape70_out1: [i64; 4] = squeeze37_out1
-            .clone()
-            .dims()[0..4]
+        let shape70_out1: [i64; 4] = squeeze37_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -3988,19 +3710,14 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze90_out1[0]]);
         let unsqueeze91_out1 = [cast92_out1];
-        let slice86_out1 = squeeze37_out1
-            .slice(s![.., .., .., unsqueeze91_out1[0]..9223372036854775807]);
+        let slice86_out1 =
+            squeeze37_out1.slice(s![.., .., .., unsqueeze91_out1[0]..9223372036854775807]);
         let neg25_out1 = slice86_out1.neg();
-        let concat55_out1 = burn::tensor::Tensor::cat(
-            [neg25_out1, slice85_out1].into(),
-            3,
-        );
+        let concat55_out1 = burn::tensor::Tensor::cat([neg25_out1, slice85_out1].into(), 3);
         let mul141_out1 = concat55_out1.mul(unsqueeze14_out1.clone());
         let add85_out1 = mul140_out1.add(mul141_out1);
         let mul142_out1 = squeeze38_out1.clone().mul(unsqueeze13_out1.clone());
-        let shape71_out1: [i64; 4] = squeeze38_out1
-            .clone()
-            .dims()[0..4]
+        let shape71_out1: [i64; 4] = squeeze38_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -4022,18 +3739,13 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze92_out1[0]]);
         let unsqueeze93_out1 = [cast94_out1];
-        let slice88_out1 = squeeze38_out1
-            .slice(s![.., .., .., unsqueeze93_out1[0]..9223372036854775807]);
+        let slice88_out1 =
+            squeeze38_out1.slice(s![.., .., .., unsqueeze93_out1[0]..9223372036854775807]);
         let neg26_out1 = slice88_out1.neg();
-        let concat56_out1 = burn::tensor::Tensor::cat(
-            [neg26_out1, slice87_out1].into(),
-            3,
-        );
+        let concat56_out1 = burn::tensor::Tensor::cat([neg26_out1, slice87_out1].into(), 3);
         let mul143_out1 = concat56_out1.mul(unsqueeze14_out1.clone());
         let add86_out1 = mul142_out1.add(mul143_out1);
-        let shape72_out1: [i64; 4] = add85_out1
-            .clone()
-            .dims()[0..4]
+        let shape72_out1: [i64; 4] = add85_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -4051,11 +3763,10 @@ impl<B: Backend> Model<B> {
         let cast96_out1 = div63_out1;
         let transpose41_out1 = add86_out1.permute([0, 1, 3, 2]);
         let sqrt38_out1 = cast96_out1.clone().sqrt();
-        let mul144_out1 = add85_out1
-            .mul(sqrt38_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul144_out1 = add85_out1.mul(sqrt38_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let sqrt39_out1 = cast96_out1.sqrt();
-        let mul145_out1 = transpose41_out1
-            .mul(sqrt39_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul145_out1 =
+            transpose41_out1.mul(sqrt39_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let matmul76_out1 = mul144_out1.matmul(mul145_out1);
         let add87_out1 = matmul76_out1.add(where2_out1.clone());
         let softmax13_out1 = burn::tensor::activation::softmax(add87_out1, 3);
@@ -4069,9 +3780,9 @@ impl<B: Backend> Model<B> {
             &constant647_out1[..],
             &constant648_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape29_out1 = transpose42_out1.reshape(concat57_out1);
         let matmul78_out1 = self.matmul78.forward(reshape29_out1);
         let add88_out1 = add84_out1.add(matmul78_out1);
@@ -4082,9 +3793,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul79_out1 = self.matmul79.forward(layernormalization26_out1);
-        let shape73_out1: [i64; 3] = matmul79_out1
-            .clone()
-            .dims()[0..3]
+        let shape73_out1: [i64; 3] = matmul79_out1.clone().dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -4107,8 +3816,7 @@ impl<B: Backend> Model<B> {
         let constant652_out1: [i64; 1] = [1i64];
         let add89_out1 = {
             let mut result = gather58_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant652_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant652_out1.iter()) {
                 *result_item = result_item.saturating_add(*rhs_item);
             }
             result
@@ -4116,8 +3824,7 @@ impl<B: Backend> Model<B> {
         let constant653_out1: [i64; 1] = [2i64];
         let div64_out1 = {
             let mut result = add89_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant653_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant653_out1.iter()) {
                 *result_item = if *rhs_item != 0 {
                     *result_item / *rhs_item
                 } else {
@@ -4129,8 +3836,7 @@ impl<B: Backend> Model<B> {
         let constant654_out1: [i64; 1] = [1i64];
         let mul146_out1 = {
             let mut result = div64_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant654_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant654_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
@@ -4139,14 +3845,12 @@ impl<B: Backend> Model<B> {
         let constant655_out1: [i64; 1] = [2i64];
         let mul147_out1 = {
             let mut result = div64_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant655_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant655_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
         };
-        let slice91_out1 = matmul79_out1
-            .slice(s![.., .., mul146_out1[0]..mul147_out1[0]]);
+        let slice91_out1 = matmul79_out1.slice(s![.., .., mul146_out1[0]..mul147_out1[0]]);
         let constant656_out1: f32 = 1.4142135f32;
         let div65_out1 = slice90_out1.clone().div_scalar(constant656_out1);
         let erf13_out1 = div65_out1.erf();
@@ -4165,8 +3869,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul81_out1 = self.matmul81.forward(layernormalization27_out1.clone());
-        let shape74_out1: [i64; 3] = layernormalization27_out1
-            .dims()[0..3]
+        let shape74_out1: [i64; 3] = layernormalization27_out1.dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -4191,22 +3894,18 @@ impl<B: Backend> Model<B> {
             &constant664_out1[..],
             &constant665_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape30_out1 = matmul81_out1.reshape(concat58_out1);
         let transpose43_out1 = reshape30_out1.permute([0, 3, 2, 1, 4]);
         let split_tensors = transpose43_out1.split_with_sizes([1, 1, 1].to_vec(), 2);
-        let [split14_out1, split14_out2, split14_out3] = split_tensors
-            .try_into()
-            .unwrap();
+        let [split14_out1, split14_out2, split14_out3] = split_tensors.try_into().unwrap();
         let squeeze40_out1 = split14_out1.squeeze_dims(&[2]);
         let squeeze41_out1 = split14_out2.squeeze_dims(&[2]);
         let squeeze42_out1 = split14_out3.squeeze_dims(&[2]);
         let mul151_out1 = squeeze40_out1.clone().mul(unsqueeze22_out1.clone());
-        let shape75_out1: [i64; 4] = squeeze40_out1
-            .clone()
-            .dims()[0..4]
+        let shape75_out1: [i64; 4] = squeeze40_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -4228,19 +3927,14 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze96_out1[0]]);
         let unsqueeze97_out1 = [cast98_out1];
-        let slice93_out1 = squeeze40_out1
-            .slice(s![.., .., .., unsqueeze97_out1[0]..9223372036854775807]);
+        let slice93_out1 =
+            squeeze40_out1.slice(s![.., .., .., unsqueeze97_out1[0]..9223372036854775807]);
         let neg27_out1 = slice93_out1.neg();
-        let concat59_out1 = burn::tensor::Tensor::cat(
-            [neg27_out1, slice92_out1].into(),
-            3,
-        );
+        let concat59_out1 = burn::tensor::Tensor::cat([neg27_out1, slice92_out1].into(), 3);
         let mul152_out1 = concat59_out1.mul(unsqueeze23_out1.clone());
         let add92_out1 = mul151_out1.add(mul152_out1);
         let mul153_out1 = squeeze41_out1.clone().mul(unsqueeze22_out1.clone());
-        let shape76_out1: [i64; 4] = squeeze41_out1
-            .clone()
-            .dims()[0..4]
+        let shape76_out1: [i64; 4] = squeeze41_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -4262,18 +3956,13 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze98_out1[0]]);
         let unsqueeze99_out1 = [cast100_out1];
-        let slice95_out1 = squeeze41_out1
-            .slice(s![.., .., .., unsqueeze99_out1[0]..9223372036854775807]);
+        let slice95_out1 =
+            squeeze41_out1.slice(s![.., .., .., unsqueeze99_out1[0]..9223372036854775807]);
         let neg28_out1 = slice95_out1.neg();
-        let concat60_out1 = burn::tensor::Tensor::cat(
-            [neg28_out1, slice94_out1].into(),
-            3,
-        );
+        let concat60_out1 = burn::tensor::Tensor::cat([neg28_out1, slice94_out1].into(), 3);
         let mul154_out1 = concat60_out1.mul(unsqueeze23_out1.clone());
         let add93_out1 = mul153_out1.add(mul154_out1);
-        let shape77_out1: [i64; 4] = add92_out1
-            .clone()
-            .dims()[0..4]
+        let shape77_out1: [i64; 4] = add92_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -4291,11 +3980,10 @@ impl<B: Backend> Model<B> {
         let cast102_out1 = div68_out1;
         let transpose44_out1 = add93_out1.permute([0, 1, 3, 2]);
         let sqrt41_out1 = cast102_out1.clone().sqrt();
-        let mul155_out1 = add92_out1
-            .mul(sqrt41_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul155_out1 = add92_out1.mul(sqrt41_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let sqrt42_out1 = cast102_out1.sqrt();
-        let mul156_out1 = transpose44_out1
-            .mul(sqrt42_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul156_out1 =
+            transpose44_out1.mul(sqrt42_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let matmul82_out1 = mul155_out1.matmul(mul156_out1);
         let add94_out1 = matmul82_out1.add(where3_out1.clone());
         let softmax14_out1 = burn::tensor::activation::softmax(add94_out1, 3);
@@ -4309,9 +3997,9 @@ impl<B: Backend> Model<B> {
             &constant694_out1[..],
             &constant695_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape31_out1 = transpose45_out1.reshape(concat61_out1);
         let matmul84_out1 = self.matmul84.forward(reshape31_out1);
         let add95_out1 = add91_out1.add(matmul84_out1);
@@ -4322,9 +4010,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul85_out1 = self.matmul85.forward(layernormalization28_out1);
-        let shape78_out1: [i64; 3] = matmul85_out1
-            .clone()
-            .dims()[0..3]
+        let shape78_out1: [i64; 3] = matmul85_out1.clone().dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -4347,8 +4033,7 @@ impl<B: Backend> Model<B> {
         let constant699_out1: [i64; 1] = [1i64];
         let add96_out1 = {
             let mut result = gather62_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant699_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant699_out1.iter()) {
                 *result_item = result_item.saturating_add(*rhs_item);
             }
             result
@@ -4356,8 +4041,7 @@ impl<B: Backend> Model<B> {
         let constant700_out1: [i64; 1] = [2i64];
         let div69_out1 = {
             let mut result = add96_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant700_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant700_out1.iter()) {
                 *result_item = if *rhs_item != 0 {
                     *result_item / *rhs_item
                 } else {
@@ -4369,8 +4053,7 @@ impl<B: Backend> Model<B> {
         let constant701_out1: [i64; 1] = [1i64];
         let mul157_out1 = {
             let mut result = div69_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant701_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant701_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
@@ -4379,14 +4062,12 @@ impl<B: Backend> Model<B> {
         let constant702_out1: [i64; 1] = [2i64];
         let mul158_out1 = {
             let mut result = div69_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant702_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant702_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
         };
-        let slice98_out1 = matmul85_out1
-            .slice(s![.., .., mul157_out1[0]..mul158_out1[0]]);
+        let slice98_out1 = matmul85_out1.slice(s![.., .., mul157_out1[0]..mul158_out1[0]]);
         let constant703_out1: f32 = 1.4142135f32;
         let div70_out1 = slice97_out1.clone().div_scalar(constant703_out1);
         let erf14_out1 = div70_out1.erf();
@@ -4405,8 +4086,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul87_out1 = self.matmul87.forward(layernormalization29_out1.clone());
-        let shape79_out1: [i64; 3] = layernormalization29_out1
-            .dims()[0..3]
+        let shape79_out1: [i64; 3] = layernormalization29_out1.dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -4431,22 +4111,18 @@ impl<B: Backend> Model<B> {
             &constant711_out1[..],
             &constant712_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape32_out1 = matmul87_out1.reshape(concat62_out1);
         let transpose46_out1 = reshape32_out1.permute([0, 3, 2, 1, 4]);
         let split_tensors = transpose46_out1.split_with_sizes([1, 1, 1].to_vec(), 2);
-        let [split15_out1, split15_out2, split15_out3] = split_tensors
-            .try_into()
-            .unwrap();
+        let [split15_out1, split15_out2, split15_out3] = split_tensors.try_into().unwrap();
         let squeeze43_out1 = split15_out1.squeeze_dims(&[2]);
         let squeeze44_out1 = split15_out2.squeeze_dims(&[2]);
         let squeeze45_out1 = split15_out3.squeeze_dims(&[2]);
         let mul162_out1 = squeeze43_out1.clone().mul(unsqueeze22_out1.clone());
-        let shape80_out1: [i64; 4] = squeeze43_out1
-            .clone()
-            .dims()[0..4]
+        let shape80_out1: [i64; 4] = squeeze43_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -4468,19 +4144,14 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze102_out1[0]]);
         let unsqueeze103_out1 = [cast104_out1];
-        let slice100_out1 = squeeze43_out1
-            .slice(s![.., .., .., unsqueeze103_out1[0]..9223372036854775807]);
+        let slice100_out1 =
+            squeeze43_out1.slice(s![.., .., .., unsqueeze103_out1[0]..9223372036854775807]);
         let neg29_out1 = slice100_out1.neg();
-        let concat63_out1 = burn::tensor::Tensor::cat(
-            [neg29_out1, slice99_out1].into(),
-            3,
-        );
+        let concat63_out1 = burn::tensor::Tensor::cat([neg29_out1, slice99_out1].into(), 3);
         let mul163_out1 = concat63_out1.mul(unsqueeze23_out1.clone());
         let add99_out1 = mul162_out1.add(mul163_out1);
         let mul164_out1 = squeeze44_out1.clone().mul(unsqueeze22_out1.clone());
-        let shape81_out1: [i64; 4] = squeeze44_out1
-            .clone()
-            .dims()[0..4]
+        let shape81_out1: [i64; 4] = squeeze44_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -4502,18 +4173,13 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze104_out1[0]]);
         let unsqueeze105_out1 = [cast106_out1];
-        let slice102_out1 = squeeze44_out1
-            .slice(s![.., .., .., unsqueeze105_out1[0]..9223372036854775807]);
+        let slice102_out1 =
+            squeeze44_out1.slice(s![.., .., .., unsqueeze105_out1[0]..9223372036854775807]);
         let neg30_out1 = slice102_out1.neg();
-        let concat64_out1 = burn::tensor::Tensor::cat(
-            [neg30_out1, slice101_out1].into(),
-            3,
-        );
+        let concat64_out1 = burn::tensor::Tensor::cat([neg30_out1, slice101_out1].into(), 3);
         let mul165_out1 = concat64_out1.mul(unsqueeze23_out1.clone());
         let add100_out1 = mul164_out1.add(mul165_out1);
-        let shape82_out1: [i64; 4] = add99_out1
-            .clone()
-            .dims()[0..4]
+        let shape82_out1: [i64; 4] = add99_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -4531,11 +4197,10 @@ impl<B: Backend> Model<B> {
         let cast108_out1 = div73_out1;
         let transpose47_out1 = add100_out1.permute([0, 1, 3, 2]);
         let sqrt44_out1 = cast108_out1.clone().sqrt();
-        let mul166_out1 = add99_out1
-            .mul(sqrt44_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul166_out1 = add99_out1.mul(sqrt44_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let sqrt45_out1 = cast108_out1.sqrt();
-        let mul167_out1 = transpose47_out1
-            .mul(sqrt45_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul167_out1 =
+            transpose47_out1.mul(sqrt45_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let matmul88_out1 = mul166_out1.matmul(mul167_out1);
         let add101_out1 = matmul88_out1.add(where3_out1.clone());
         let softmax15_out1 = burn::tensor::activation::softmax(add101_out1, 3);
@@ -4549,9 +4214,9 @@ impl<B: Backend> Model<B> {
             &constant741_out1[..],
             &constant742_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape33_out1 = transpose48_out1.reshape(concat65_out1);
         let matmul90_out1 = self.matmul90.forward(reshape33_out1);
         let add102_out1 = add98_out1.add(matmul90_out1);
@@ -4562,9 +4227,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul91_out1 = self.matmul91.forward(layernormalization30_out1);
-        let shape83_out1: [i64; 3] = matmul91_out1
-            .clone()
-            .dims()[0..3]
+        let shape83_out1: [i64; 3] = matmul91_out1.clone().dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -4587,8 +4250,7 @@ impl<B: Backend> Model<B> {
         let constant746_out1: [i64; 1] = [1i64];
         let add103_out1 = {
             let mut result = gather66_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant746_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant746_out1.iter()) {
                 *result_item = result_item.saturating_add(*rhs_item);
             }
             result
@@ -4596,8 +4258,7 @@ impl<B: Backend> Model<B> {
         let constant747_out1: [i64; 1] = [2i64];
         let div74_out1 = {
             let mut result = add103_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant747_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant747_out1.iter()) {
                 *result_item = if *rhs_item != 0 {
                     *result_item / *rhs_item
                 } else {
@@ -4609,8 +4270,7 @@ impl<B: Backend> Model<B> {
         let constant748_out1: [i64; 1] = [1i64];
         let mul168_out1 = {
             let mut result = div74_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant748_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant748_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
@@ -4619,14 +4279,12 @@ impl<B: Backend> Model<B> {
         let constant749_out1: [i64; 1] = [2i64];
         let mul169_out1 = {
             let mut result = div74_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant749_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant749_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
         };
-        let slice105_out1 = matmul91_out1
-            .slice(s![.., .., mul168_out1[0]..mul169_out1[0]]);
+        let slice105_out1 = matmul91_out1.slice(s![.., .., mul168_out1[0]..mul169_out1[0]]);
         let constant750_out1: f32 = 1.4142135f32;
         let div75_out1 = slice104_out1.clone().div_scalar(constant750_out1);
         let erf15_out1 = div75_out1.erf();
@@ -4645,8 +4303,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul93_out1 = self.matmul93.forward(layernormalization31_out1.clone());
-        let shape84_out1: [i64; 3] = layernormalization31_out1
-            .dims()[0..3]
+        let shape84_out1: [i64; 3] = layernormalization31_out1.dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -4671,22 +4328,18 @@ impl<B: Backend> Model<B> {
             &constant758_out1[..],
             &constant759_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape34_out1 = matmul93_out1.reshape(concat66_out1);
         let transpose49_out1 = reshape34_out1.permute([0, 3, 2, 1, 4]);
         let split_tensors = transpose49_out1.split_with_sizes([1, 1, 1].to_vec(), 2);
-        let [split16_out1, split16_out2, split16_out3] = split_tensors
-            .try_into()
-            .unwrap();
+        let [split16_out1, split16_out2, split16_out3] = split_tensors.try_into().unwrap();
         let squeeze46_out1 = split16_out1.squeeze_dims(&[2]);
         let squeeze47_out1 = split16_out2.squeeze_dims(&[2]);
         let squeeze48_out1 = split16_out3.squeeze_dims(&[2]);
         let mul173_out1 = squeeze46_out1.clone().mul(unsqueeze13_out1.clone());
-        let shape85_out1: [i64; 4] = squeeze46_out1
-            .clone()
-            .dims()[0..4]
+        let shape85_out1: [i64; 4] = squeeze46_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -4708,19 +4361,14 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze108_out1[0]]);
         let unsqueeze109_out1 = [cast110_out1];
-        let slice107_out1 = squeeze46_out1
-            .slice(s![.., .., .., unsqueeze109_out1[0]..9223372036854775807]);
+        let slice107_out1 =
+            squeeze46_out1.slice(s![.., .., .., unsqueeze109_out1[0]..9223372036854775807]);
         let neg31_out1 = slice107_out1.neg();
-        let concat67_out1 = burn::tensor::Tensor::cat(
-            [neg31_out1, slice106_out1].into(),
-            3,
-        );
+        let concat67_out1 = burn::tensor::Tensor::cat([neg31_out1, slice106_out1].into(), 3);
         let mul174_out1 = concat67_out1.mul(unsqueeze14_out1.clone());
         let add106_out1 = mul173_out1.add(mul174_out1);
         let mul175_out1 = squeeze47_out1.clone().mul(unsqueeze13_out1.clone());
-        let shape86_out1: [i64; 4] = squeeze47_out1
-            .clone()
-            .dims()[0..4]
+        let shape86_out1: [i64; 4] = squeeze47_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -4742,18 +4390,13 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze110_out1[0]]);
         let unsqueeze111_out1 = [cast112_out1];
-        let slice109_out1 = squeeze47_out1
-            .slice(s![.., .., .., unsqueeze111_out1[0]..9223372036854775807]);
+        let slice109_out1 =
+            squeeze47_out1.slice(s![.., .., .., unsqueeze111_out1[0]..9223372036854775807]);
         let neg32_out1 = slice109_out1.neg();
-        let concat68_out1 = burn::tensor::Tensor::cat(
-            [neg32_out1, slice108_out1].into(),
-            3,
-        );
+        let concat68_out1 = burn::tensor::Tensor::cat([neg32_out1, slice108_out1].into(), 3);
         let mul176_out1 = concat68_out1.mul(unsqueeze14_out1.clone());
         let add107_out1 = mul175_out1.add(mul176_out1);
-        let shape87_out1: [i64; 4] = add106_out1
-            .clone()
-            .dims()[0..4]
+        let shape87_out1: [i64; 4] = add106_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -4771,11 +4414,10 @@ impl<B: Backend> Model<B> {
         let cast114_out1 = div78_out1;
         let transpose50_out1 = add107_out1.permute([0, 1, 3, 2]);
         let sqrt47_out1 = cast114_out1.clone().sqrt();
-        let mul177_out1 = add106_out1
-            .mul(sqrt47_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul177_out1 = add106_out1.mul(sqrt47_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let sqrt48_out1 = cast114_out1.sqrt();
-        let mul178_out1 = transpose50_out1
-            .mul(sqrt48_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul178_out1 =
+            transpose50_out1.mul(sqrt48_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let matmul94_out1 = mul177_out1.matmul(mul178_out1);
         let add108_out1 = matmul94_out1.add(where2_out1.clone());
         let softmax16_out1 = burn::tensor::activation::softmax(add108_out1, 3);
@@ -4789,9 +4431,9 @@ impl<B: Backend> Model<B> {
             &constant788_out1[..],
             &constant789_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape35_out1 = transpose51_out1.reshape(concat69_out1);
         let matmul96_out1 = self.matmul96.forward(reshape35_out1);
         let add109_out1 = add105_out1.add(matmul96_out1);
@@ -4802,9 +4444,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul97_out1 = self.matmul97.forward(layernormalization32_out1);
-        let shape88_out1: [i64; 3] = matmul97_out1
-            .clone()
-            .dims()[0..3]
+        let shape88_out1: [i64; 3] = matmul97_out1.clone().dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -4827,8 +4467,7 @@ impl<B: Backend> Model<B> {
         let constant793_out1: [i64; 1] = [1i64];
         let add110_out1 = {
             let mut result = gather70_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant793_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant793_out1.iter()) {
                 *result_item = result_item.saturating_add(*rhs_item);
             }
             result
@@ -4836,8 +4475,7 @@ impl<B: Backend> Model<B> {
         let constant794_out1: [i64; 1] = [2i64];
         let div79_out1 = {
             let mut result = add110_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant794_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant794_out1.iter()) {
                 *result_item = if *rhs_item != 0 {
                     *result_item / *rhs_item
                 } else {
@@ -4849,8 +4487,7 @@ impl<B: Backend> Model<B> {
         let constant795_out1: [i64; 1] = [1i64];
         let mul179_out1 = {
             let mut result = div79_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant795_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant795_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
@@ -4859,14 +4496,12 @@ impl<B: Backend> Model<B> {
         let constant796_out1: [i64; 1] = [2i64];
         let mul180_out1 = {
             let mut result = div79_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant796_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant796_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
         };
-        let slice112_out1 = matmul97_out1
-            .slice(s![.., .., mul179_out1[0]..mul180_out1[0]]);
+        let slice112_out1 = matmul97_out1.slice(s![.., .., mul179_out1[0]..mul180_out1[0]]);
         let constant797_out1: f32 = 1.4142135f32;
         let div80_out1 = slice111_out1.clone().div_scalar(constant797_out1);
         let erf16_out1 = div80_out1.erf();
@@ -4885,8 +4520,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul99_out1 = self.matmul99.forward(layernormalization33_out1.clone());
-        let shape89_out1: [i64; 3] = layernormalization33_out1
-            .dims()[0..3]
+        let shape89_out1: [i64; 3] = layernormalization33_out1.dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -4911,22 +4545,18 @@ impl<B: Backend> Model<B> {
             &constant805_out1[..],
             &constant806_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape36_out1 = matmul99_out1.reshape(concat70_out1);
         let transpose52_out1 = reshape36_out1.permute([0, 3, 2, 1, 4]);
         let split_tensors = transpose52_out1.split_with_sizes([1, 1, 1].to_vec(), 2);
-        let [split17_out1, split17_out2, split17_out3] = split_tensors
-            .try_into()
-            .unwrap();
+        let [split17_out1, split17_out2, split17_out3] = split_tensors.try_into().unwrap();
         let squeeze49_out1 = split17_out1.squeeze_dims(&[2]);
         let squeeze50_out1 = split17_out2.squeeze_dims(&[2]);
         let squeeze51_out1 = split17_out3.squeeze_dims(&[2]);
         let mul184_out1 = squeeze49_out1.clone().mul(unsqueeze22_out1.clone());
-        let shape90_out1: [i64; 4] = squeeze49_out1
-            .clone()
-            .dims()[0..4]
+        let shape90_out1: [i64; 4] = squeeze49_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -4948,19 +4578,14 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze114_out1[0]]);
         let unsqueeze115_out1 = [cast116_out1];
-        let slice114_out1 = squeeze49_out1
-            .slice(s![.., .., .., unsqueeze115_out1[0]..9223372036854775807]);
+        let slice114_out1 =
+            squeeze49_out1.slice(s![.., .., .., unsqueeze115_out1[0]..9223372036854775807]);
         let neg33_out1 = slice114_out1.neg();
-        let concat71_out1 = burn::tensor::Tensor::cat(
-            [neg33_out1, slice113_out1].into(),
-            3,
-        );
+        let concat71_out1 = burn::tensor::Tensor::cat([neg33_out1, slice113_out1].into(), 3);
         let mul185_out1 = concat71_out1.mul(unsqueeze23_out1.clone());
         let add113_out1 = mul184_out1.add(mul185_out1);
         let mul186_out1 = squeeze50_out1.clone().mul(unsqueeze22_out1.clone());
-        let shape91_out1: [i64; 4] = squeeze50_out1
-            .clone()
-            .dims()[0..4]
+        let shape91_out1: [i64; 4] = squeeze50_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -4982,18 +4607,13 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze116_out1[0]]);
         let unsqueeze117_out1 = [cast118_out1];
-        let slice116_out1 = squeeze50_out1
-            .slice(s![.., .., .., unsqueeze117_out1[0]..9223372036854775807]);
+        let slice116_out1 =
+            squeeze50_out1.slice(s![.., .., .., unsqueeze117_out1[0]..9223372036854775807]);
         let neg34_out1 = slice116_out1.neg();
-        let concat72_out1 = burn::tensor::Tensor::cat(
-            [neg34_out1, slice115_out1].into(),
-            3,
-        );
+        let concat72_out1 = burn::tensor::Tensor::cat([neg34_out1, slice115_out1].into(), 3);
         let mul187_out1 = concat72_out1.mul(unsqueeze23_out1.clone());
         let add114_out1 = mul186_out1.add(mul187_out1);
-        let shape92_out1: [i64; 4] = add113_out1
-            .clone()
-            .dims()[0..4]
+        let shape92_out1: [i64; 4] = add113_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -5011,11 +4631,10 @@ impl<B: Backend> Model<B> {
         let cast120_out1 = div83_out1;
         let transpose53_out1 = add114_out1.permute([0, 1, 3, 2]);
         let sqrt50_out1 = cast120_out1.clone().sqrt();
-        let mul188_out1 = add113_out1
-            .mul(sqrt50_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul188_out1 = add113_out1.mul(sqrt50_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let sqrt51_out1 = cast120_out1.sqrt();
-        let mul189_out1 = transpose53_out1
-            .mul(sqrt51_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul189_out1 =
+            transpose53_out1.mul(sqrt51_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let matmul100_out1 = mul188_out1.matmul(mul189_out1);
         let add115_out1 = matmul100_out1.add(where3_out1.clone());
         let softmax17_out1 = burn::tensor::activation::softmax(add115_out1, 3);
@@ -5029,9 +4648,9 @@ impl<B: Backend> Model<B> {
             &constant835_out1[..],
             &constant836_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape37_out1 = transpose54_out1.reshape(concat73_out1);
         let matmul102_out1 = self.matmul102.forward(reshape37_out1);
         let add116_out1 = add112_out1.add(matmul102_out1);
@@ -5042,9 +4661,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul103_out1 = self.matmul103.forward(layernormalization34_out1);
-        let shape93_out1: [i64; 3] = matmul103_out1
-            .clone()
-            .dims()[0..3]
+        let shape93_out1: [i64; 3] = matmul103_out1.clone().dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -5067,8 +4684,7 @@ impl<B: Backend> Model<B> {
         let constant840_out1: [i64; 1] = [1i64];
         let add117_out1 = {
             let mut result = gather74_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant840_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant840_out1.iter()) {
                 *result_item = result_item.saturating_add(*rhs_item);
             }
             result
@@ -5076,8 +4692,7 @@ impl<B: Backend> Model<B> {
         let constant841_out1: [i64; 1] = [2i64];
         let div84_out1 = {
             let mut result = add117_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant841_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant841_out1.iter()) {
                 *result_item = if *rhs_item != 0 {
                     *result_item / *rhs_item
                 } else {
@@ -5089,8 +4704,7 @@ impl<B: Backend> Model<B> {
         let constant842_out1: [i64; 1] = [1i64];
         let mul190_out1 = {
             let mut result = div84_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant842_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant842_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
@@ -5099,14 +4713,12 @@ impl<B: Backend> Model<B> {
         let constant843_out1: [i64; 1] = [2i64];
         let mul191_out1 = {
             let mut result = div84_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant843_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant843_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
         };
-        let slice119_out1 = matmul103_out1
-            .slice(s![.., .., mul190_out1[0]..mul191_out1[0]]);
+        let slice119_out1 = matmul103_out1.slice(s![.., .., mul190_out1[0]..mul191_out1[0]]);
         let constant844_out1: f32 = 1.4142135f32;
         let div85_out1 = slice118_out1.clone().div_scalar(constant844_out1);
         let erf17_out1 = div85_out1.erf();
@@ -5125,8 +4737,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul105_out1 = self.matmul105.forward(layernormalization35_out1.clone());
-        let shape94_out1: [i64; 3] = layernormalization35_out1
-            .dims()[0..3]
+        let shape94_out1: [i64; 3] = layernormalization35_out1.dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -5151,22 +4762,18 @@ impl<B: Backend> Model<B> {
             &constant852_out1[..],
             &constant853_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape38_out1 = matmul105_out1.reshape(concat74_out1);
         let transpose55_out1 = reshape38_out1.permute([0, 3, 2, 1, 4]);
         let split_tensors = transpose55_out1.split_with_sizes([1, 1, 1].to_vec(), 2);
-        let [split18_out1, split18_out2, split18_out3] = split_tensors
-            .try_into()
-            .unwrap();
+        let [split18_out1, split18_out2, split18_out3] = split_tensors.try_into().unwrap();
         let squeeze52_out1 = split18_out1.squeeze_dims(&[2]);
         let squeeze53_out1 = split18_out2.squeeze_dims(&[2]);
         let squeeze54_out1 = split18_out3.squeeze_dims(&[2]);
         let mul195_out1 = squeeze52_out1.clone().mul(unsqueeze22_out1.clone());
-        let shape95_out1: [i64; 4] = squeeze52_out1
-            .clone()
-            .dims()[0..4]
+        let shape95_out1: [i64; 4] = squeeze52_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -5188,19 +4795,14 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze120_out1[0]]);
         let unsqueeze121_out1 = [cast122_out1];
-        let slice121_out1 = squeeze52_out1
-            .slice(s![.., .., .., unsqueeze121_out1[0]..9223372036854775807]);
+        let slice121_out1 =
+            squeeze52_out1.slice(s![.., .., .., unsqueeze121_out1[0]..9223372036854775807]);
         let neg35_out1 = slice121_out1.neg();
-        let concat75_out1 = burn::tensor::Tensor::cat(
-            [neg35_out1, slice120_out1].into(),
-            3,
-        );
+        let concat75_out1 = burn::tensor::Tensor::cat([neg35_out1, slice120_out1].into(), 3);
         let mul196_out1 = concat75_out1.mul(unsqueeze23_out1.clone());
         let add120_out1 = mul195_out1.add(mul196_out1);
         let mul197_out1 = squeeze53_out1.clone().mul(unsqueeze22_out1.clone());
-        let shape96_out1: [i64; 4] = squeeze53_out1
-            .clone()
-            .dims()[0..4]
+        let shape96_out1: [i64; 4] = squeeze53_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -5222,18 +4824,13 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze122_out1[0]]);
         let unsqueeze123_out1 = [cast124_out1];
-        let slice123_out1 = squeeze53_out1
-            .slice(s![.., .., .., unsqueeze123_out1[0]..9223372036854775807]);
+        let slice123_out1 =
+            squeeze53_out1.slice(s![.., .., .., unsqueeze123_out1[0]..9223372036854775807]);
         let neg36_out1 = slice123_out1.neg();
-        let concat76_out1 = burn::tensor::Tensor::cat(
-            [neg36_out1, slice122_out1].into(),
-            3,
-        );
+        let concat76_out1 = burn::tensor::Tensor::cat([neg36_out1, slice122_out1].into(), 3);
         let mul198_out1 = concat76_out1.mul(unsqueeze23_out1.clone());
         let add121_out1 = mul197_out1.add(mul198_out1);
-        let shape97_out1: [i64; 4] = add120_out1
-            .clone()
-            .dims()[0..4]
+        let shape97_out1: [i64; 4] = add120_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -5251,11 +4848,10 @@ impl<B: Backend> Model<B> {
         let cast126_out1 = div88_out1;
         let transpose56_out1 = add121_out1.permute([0, 1, 3, 2]);
         let sqrt53_out1 = cast126_out1.clone().sqrt();
-        let mul199_out1 = add120_out1
-            .mul(sqrt53_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul199_out1 = add120_out1.mul(sqrt53_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let sqrt54_out1 = cast126_out1.sqrt();
-        let mul200_out1 = transpose56_out1
-            .mul(sqrt54_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul200_out1 =
+            transpose56_out1.mul(sqrt54_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let matmul106_out1 = mul199_out1.matmul(mul200_out1);
         let add122_out1 = matmul106_out1.add(where3_out1.clone());
         let softmax18_out1 = burn::tensor::activation::softmax(add122_out1, 3);
@@ -5269,9 +4865,9 @@ impl<B: Backend> Model<B> {
             &constant882_out1[..],
             &constant883_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape39_out1 = transpose57_out1.reshape(concat77_out1);
         let matmul108_out1 = self.matmul108.forward(reshape39_out1);
         let add123_out1 = add119_out1.add(matmul108_out1);
@@ -5282,9 +4878,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul109_out1 = self.matmul109.forward(layernormalization36_out1);
-        let shape98_out1: [i64; 3] = matmul109_out1
-            .clone()
-            .dims()[0..3]
+        let shape98_out1: [i64; 3] = matmul109_out1.clone().dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -5307,8 +4901,7 @@ impl<B: Backend> Model<B> {
         let constant887_out1: [i64; 1] = [1i64];
         let add124_out1 = {
             let mut result = gather78_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant887_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant887_out1.iter()) {
                 *result_item = result_item.saturating_add(*rhs_item);
             }
             result
@@ -5316,8 +4909,7 @@ impl<B: Backend> Model<B> {
         let constant888_out1: [i64; 1] = [2i64];
         let div89_out1 = {
             let mut result = add124_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant888_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant888_out1.iter()) {
                 *result_item = if *rhs_item != 0 {
                     *result_item / *rhs_item
                 } else {
@@ -5329,8 +4921,7 @@ impl<B: Backend> Model<B> {
         let constant889_out1: [i64; 1] = [1i64];
         let mul201_out1 = {
             let mut result = div89_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant889_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant889_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
@@ -5339,14 +4930,12 @@ impl<B: Backend> Model<B> {
         let constant890_out1: [i64; 1] = [2i64];
         let mul202_out1 = {
             let mut result = div89_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant890_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant890_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
         };
-        let slice126_out1 = matmul109_out1
-            .slice(s![.., .., mul201_out1[0]..mul202_out1[0]]);
+        let slice126_out1 = matmul109_out1.slice(s![.., .., mul201_out1[0]..mul202_out1[0]]);
         let constant891_out1: f32 = 1.4142135f32;
         let div90_out1 = slice125_out1.clone().div_scalar(constant891_out1);
         let erf18_out1 = div90_out1.erf();
@@ -5365,8 +4954,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul111_out1 = self.matmul111.forward(layernormalization37_out1.clone());
-        let shape99_out1: [i64; 3] = layernormalization37_out1
-            .dims()[0..3]
+        let shape99_out1: [i64; 3] = layernormalization37_out1.dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -5391,22 +4979,18 @@ impl<B: Backend> Model<B> {
             &constant899_out1[..],
             &constant900_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape40_out1 = matmul111_out1.reshape(concat78_out1);
         let transpose58_out1 = reshape40_out1.permute([0, 3, 2, 1, 4]);
         let split_tensors = transpose58_out1.split_with_sizes([1, 1, 1].to_vec(), 2);
-        let [split19_out1, split19_out2, split19_out3] = split_tensors
-            .try_into()
-            .unwrap();
+        let [split19_out1, split19_out2, split19_out3] = split_tensors.try_into().unwrap();
         let squeeze55_out1 = split19_out1.squeeze_dims(&[2]);
         let squeeze56_out1 = split19_out2.squeeze_dims(&[2]);
         let squeeze57_out1 = split19_out3.squeeze_dims(&[2]);
         let mul206_out1 = squeeze55_out1.clone().mul(unsqueeze13_out1.clone());
-        let shape100_out1: [i64; 4] = squeeze55_out1
-            .clone()
-            .dims()[0..4]
+        let shape100_out1: [i64; 4] = squeeze55_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -5428,19 +5012,14 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze126_out1[0]]);
         let unsqueeze127_out1 = [cast128_out1];
-        let slice128_out1 = squeeze55_out1
-            .slice(s![.., .., .., unsqueeze127_out1[0]..9223372036854775807]);
+        let slice128_out1 =
+            squeeze55_out1.slice(s![.., .., .., unsqueeze127_out1[0]..9223372036854775807]);
         let neg37_out1 = slice128_out1.neg();
-        let concat79_out1 = burn::tensor::Tensor::cat(
-            [neg37_out1, slice127_out1].into(),
-            3,
-        );
+        let concat79_out1 = burn::tensor::Tensor::cat([neg37_out1, slice127_out1].into(), 3);
         let mul207_out1 = concat79_out1.mul(unsqueeze14_out1.clone());
         let add127_out1 = mul206_out1.add(mul207_out1);
         let mul208_out1 = squeeze56_out1.clone().mul(unsqueeze13_out1.clone());
-        let shape101_out1: [i64; 4] = squeeze56_out1
-            .clone()
-            .dims()[0..4]
+        let shape101_out1: [i64; 4] = squeeze56_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -5462,18 +5041,13 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze128_out1[0]]);
         let unsqueeze129_out1 = [cast130_out1];
-        let slice130_out1 = squeeze56_out1
-            .slice(s![.., .., .., unsqueeze129_out1[0]..9223372036854775807]);
+        let slice130_out1 =
+            squeeze56_out1.slice(s![.., .., .., unsqueeze129_out1[0]..9223372036854775807]);
         let neg38_out1 = slice130_out1.neg();
-        let concat80_out1 = burn::tensor::Tensor::cat(
-            [neg38_out1, slice129_out1].into(),
-            3,
-        );
+        let concat80_out1 = burn::tensor::Tensor::cat([neg38_out1, slice129_out1].into(), 3);
         let mul209_out1 = concat80_out1.mul(unsqueeze14_out1.clone());
         let add128_out1 = mul208_out1.add(mul209_out1);
-        let shape102_out1: [i64; 4] = add127_out1
-            .clone()
-            .dims()[0..4]
+        let shape102_out1: [i64; 4] = add127_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -5491,11 +5065,10 @@ impl<B: Backend> Model<B> {
         let cast132_out1 = div93_out1;
         let transpose59_out1 = add128_out1.permute([0, 1, 3, 2]);
         let sqrt56_out1 = cast132_out1.clone().sqrt();
-        let mul210_out1 = add127_out1
-            .mul(sqrt56_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul210_out1 = add127_out1.mul(sqrt56_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let sqrt57_out1 = cast132_out1.sqrt();
-        let mul211_out1 = transpose59_out1
-            .mul(sqrt57_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul211_out1 =
+            transpose59_out1.mul(sqrt57_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let matmul112_out1 = mul210_out1.matmul(mul211_out1);
         let add129_out1 = matmul112_out1.add(where2_out1.clone());
         let softmax19_out1 = burn::tensor::activation::softmax(add129_out1, 3);
@@ -5509,9 +5082,9 @@ impl<B: Backend> Model<B> {
             &constant929_out1[..],
             &constant930_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape41_out1 = transpose60_out1.reshape(concat81_out1);
         let matmul114_out1 = self.matmul114.forward(reshape41_out1);
         let add130_out1 = add126_out1.add(matmul114_out1);
@@ -5522,9 +5095,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul115_out1 = self.matmul115.forward(layernormalization38_out1);
-        let shape103_out1: [i64; 3] = matmul115_out1
-            .clone()
-            .dims()[0..3]
+        let shape103_out1: [i64; 3] = matmul115_out1.clone().dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -5547,8 +5118,7 @@ impl<B: Backend> Model<B> {
         let constant934_out1: [i64; 1] = [1i64];
         let add131_out1 = {
             let mut result = gather82_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant934_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant934_out1.iter()) {
                 *result_item = result_item.saturating_add(*rhs_item);
             }
             result
@@ -5556,8 +5126,7 @@ impl<B: Backend> Model<B> {
         let constant935_out1: [i64; 1] = [2i64];
         let div94_out1 = {
             let mut result = add131_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant935_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant935_out1.iter()) {
                 *result_item = if *rhs_item != 0 {
                     *result_item / *rhs_item
                 } else {
@@ -5569,8 +5138,7 @@ impl<B: Backend> Model<B> {
         let constant936_out1: [i64; 1] = [1i64];
         let mul212_out1 = {
             let mut result = div94_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant936_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant936_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
@@ -5579,14 +5147,12 @@ impl<B: Backend> Model<B> {
         let constant937_out1: [i64; 1] = [2i64];
         let mul213_out1 = {
             let mut result = div94_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant937_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant937_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
         };
-        let slice133_out1 = matmul115_out1
-            .slice(s![.., .., mul212_out1[0]..mul213_out1[0]]);
+        let slice133_out1 = matmul115_out1.slice(s![.., .., mul212_out1[0]..mul213_out1[0]]);
         let constant938_out1: f32 = 1.4142135f32;
         let div95_out1 = slice132_out1.clone().div_scalar(constant938_out1);
         let erf19_out1 = div95_out1.erf();
@@ -5605,8 +5171,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul117_out1 = self.matmul117.forward(layernormalization39_out1.clone());
-        let shape104_out1: [i64; 3] = layernormalization39_out1
-            .dims()[0..3]
+        let shape104_out1: [i64; 3] = layernormalization39_out1.dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -5631,22 +5196,18 @@ impl<B: Backend> Model<B> {
             &constant946_out1[..],
             &constant947_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape42_out1 = matmul117_out1.reshape(concat82_out1);
         let transpose61_out1 = reshape42_out1.permute([0, 3, 2, 1, 4]);
         let split_tensors = transpose61_out1.split_with_sizes([1, 1, 1].to_vec(), 2);
-        let [split20_out1, split20_out2, split20_out3] = split_tensors
-            .try_into()
-            .unwrap();
+        let [split20_out1, split20_out2, split20_out3] = split_tensors.try_into().unwrap();
         let squeeze58_out1 = split20_out1.squeeze_dims(&[2]);
         let squeeze59_out1 = split20_out2.squeeze_dims(&[2]);
         let squeeze60_out1 = split20_out3.squeeze_dims(&[2]);
         let mul217_out1 = squeeze58_out1.clone().mul(unsqueeze22_out1.clone());
-        let shape105_out1: [i64; 4] = squeeze58_out1
-            .clone()
-            .dims()[0..4]
+        let shape105_out1: [i64; 4] = squeeze58_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -5668,19 +5229,14 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze132_out1[0]]);
         let unsqueeze133_out1 = [cast134_out1];
-        let slice135_out1 = squeeze58_out1
-            .slice(s![.., .., .., unsqueeze133_out1[0]..9223372036854775807]);
+        let slice135_out1 =
+            squeeze58_out1.slice(s![.., .., .., unsqueeze133_out1[0]..9223372036854775807]);
         let neg39_out1 = slice135_out1.neg();
-        let concat83_out1 = burn::tensor::Tensor::cat(
-            [neg39_out1, slice134_out1].into(),
-            3,
-        );
+        let concat83_out1 = burn::tensor::Tensor::cat([neg39_out1, slice134_out1].into(), 3);
         let mul218_out1 = concat83_out1.mul(unsqueeze23_out1.clone());
         let add134_out1 = mul217_out1.add(mul218_out1);
         let mul219_out1 = squeeze59_out1.clone().mul(unsqueeze22_out1.clone());
-        let shape106_out1: [i64; 4] = squeeze59_out1
-            .clone()
-            .dims()[0..4]
+        let shape106_out1: [i64; 4] = squeeze59_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -5702,18 +5258,13 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze134_out1[0]]);
         let unsqueeze135_out1 = [cast136_out1];
-        let slice137_out1 = squeeze59_out1
-            .slice(s![.., .., .., unsqueeze135_out1[0]..9223372036854775807]);
+        let slice137_out1 =
+            squeeze59_out1.slice(s![.., .., .., unsqueeze135_out1[0]..9223372036854775807]);
         let neg40_out1 = slice137_out1.neg();
-        let concat84_out1 = burn::tensor::Tensor::cat(
-            [neg40_out1, slice136_out1].into(),
-            3,
-        );
+        let concat84_out1 = burn::tensor::Tensor::cat([neg40_out1, slice136_out1].into(), 3);
         let mul220_out1 = concat84_out1.mul(unsqueeze23_out1.clone());
         let add135_out1 = mul219_out1.add(mul220_out1);
-        let shape107_out1: [i64; 4] = add134_out1
-            .clone()
-            .dims()[0..4]
+        let shape107_out1: [i64; 4] = add134_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -5731,11 +5282,10 @@ impl<B: Backend> Model<B> {
         let cast138_out1 = div98_out1;
         let transpose62_out1 = add135_out1.permute([0, 1, 3, 2]);
         let sqrt59_out1 = cast138_out1.clone().sqrt();
-        let mul221_out1 = add134_out1
-            .mul(sqrt59_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul221_out1 = add134_out1.mul(sqrt59_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let sqrt60_out1 = cast138_out1.sqrt();
-        let mul222_out1 = transpose62_out1
-            .mul(sqrt60_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul222_out1 =
+            transpose62_out1.mul(sqrt60_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let matmul118_out1 = mul221_out1.matmul(mul222_out1);
         let add136_out1 = matmul118_out1.add(where3_out1.clone());
         let softmax20_out1 = burn::tensor::activation::softmax(add136_out1, 3);
@@ -5749,9 +5299,9 @@ impl<B: Backend> Model<B> {
             &constant976_out1[..],
             &constant977_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape43_out1 = transpose63_out1.reshape(concat85_out1);
         let matmul120_out1 = self.matmul120.forward(reshape43_out1);
         let add137_out1 = add133_out1.add(matmul120_out1);
@@ -5762,9 +5312,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul121_out1 = self.matmul121.forward(layernormalization40_out1);
-        let shape108_out1: [i64; 3] = matmul121_out1
-            .clone()
-            .dims()[0..3]
+        let shape108_out1: [i64; 3] = matmul121_out1.clone().dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -5787,8 +5335,7 @@ impl<B: Backend> Model<B> {
         let constant981_out1: [i64; 1] = [1i64];
         let add138_out1 = {
             let mut result = gather86_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant981_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant981_out1.iter()) {
                 *result_item = result_item.saturating_add(*rhs_item);
             }
             result
@@ -5796,8 +5343,7 @@ impl<B: Backend> Model<B> {
         let constant982_out1: [i64; 1] = [2i64];
         let div99_out1 = {
             let mut result = add138_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant982_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant982_out1.iter()) {
                 *result_item = if *rhs_item != 0 {
                     *result_item / *rhs_item
                 } else {
@@ -5809,8 +5355,7 @@ impl<B: Backend> Model<B> {
         let constant983_out1: [i64; 1] = [1i64];
         let mul223_out1 = {
             let mut result = div99_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant983_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant983_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
@@ -5819,14 +5364,12 @@ impl<B: Backend> Model<B> {
         let constant984_out1: [i64; 1] = [2i64];
         let mul224_out1 = {
             let mut result = div99_out1;
-            for (result_item, rhs_item) in result.iter_mut().zip(constant984_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant984_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
         };
-        let slice140_out1 = matmul121_out1
-            .slice(s![.., .., mul223_out1[0]..mul224_out1[0]]);
+        let slice140_out1 = matmul121_out1.slice(s![.., .., mul223_out1[0]..mul224_out1[0]]);
         let constant985_out1: f32 = 1.4142135f32;
         let div100_out1 = slice139_out1.clone().div_scalar(constant985_out1);
         let erf20_out1 = div100_out1.erf();
@@ -5845,8 +5388,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul123_out1 = self.matmul123.forward(layernormalization41_out1.clone());
-        let shape109_out1: [i64; 3] = layernormalization41_out1
-            .dims()[0..3]
+        let shape109_out1: [i64; 3] = layernormalization41_out1.dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -5871,22 +5413,18 @@ impl<B: Backend> Model<B> {
             &constant993_out1[..],
             &constant994_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape44_out1 = matmul123_out1.reshape(concat86_out1);
         let transpose64_out1 = reshape44_out1.permute([0, 3, 2, 1, 4]);
         let split_tensors = transpose64_out1.split_with_sizes([1, 1, 1].to_vec(), 2);
-        let [split21_out1, split21_out2, split21_out3] = split_tensors
-            .try_into()
-            .unwrap();
+        let [split21_out1, split21_out2, split21_out3] = split_tensors.try_into().unwrap();
         let squeeze61_out1 = split21_out1.squeeze_dims(&[2]);
         let squeeze62_out1 = split21_out2.squeeze_dims(&[2]);
         let squeeze63_out1 = split21_out3.squeeze_dims(&[2]);
         let mul228_out1 = squeeze61_out1.clone().mul(unsqueeze22_out1.clone());
-        let shape110_out1: [i64; 4] = squeeze61_out1
-            .clone()
-            .dims()[0..4]
+        let shape110_out1: [i64; 4] = squeeze61_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -5908,19 +5446,14 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze138_out1[0]]);
         let unsqueeze139_out1 = [cast140_out1];
-        let slice142_out1 = squeeze61_out1
-            .slice(s![.., .., .., unsqueeze139_out1[0]..9223372036854775807]);
+        let slice142_out1 =
+            squeeze61_out1.slice(s![.., .., .., unsqueeze139_out1[0]..9223372036854775807]);
         let neg41_out1 = slice142_out1.neg();
-        let concat87_out1 = burn::tensor::Tensor::cat(
-            [neg41_out1, slice141_out1].into(),
-            3,
-        );
+        let concat87_out1 = burn::tensor::Tensor::cat([neg41_out1, slice141_out1].into(), 3);
         let mul229_out1 = concat87_out1.mul(unsqueeze23_out1.clone());
         let add141_out1 = mul228_out1.add(mul229_out1);
         let mul230_out1 = squeeze62_out1.clone().mul(unsqueeze22_out1);
-        let shape111_out1: [i64; 4] = squeeze62_out1
-            .clone()
-            .dims()[0..4]
+        let shape111_out1: [i64; 4] = squeeze62_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -5942,18 +5475,13 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze140_out1[0]]);
         let unsqueeze141_out1 = [cast142_out1];
-        let slice144_out1 = squeeze62_out1
-            .slice(s![.., .., .., unsqueeze141_out1[0]..9223372036854775807]);
+        let slice144_out1 =
+            squeeze62_out1.slice(s![.., .., .., unsqueeze141_out1[0]..9223372036854775807]);
         let neg42_out1 = slice144_out1.neg();
-        let concat88_out1 = burn::tensor::Tensor::cat(
-            [neg42_out1, slice143_out1].into(),
-            3,
-        );
+        let concat88_out1 = burn::tensor::Tensor::cat([neg42_out1, slice143_out1].into(), 3);
         let mul231_out1 = concat88_out1.mul(unsqueeze23_out1);
         let add142_out1 = mul230_out1.add(mul231_out1);
-        let shape112_out1: [i64; 4] = add141_out1
-            .clone()
-            .dims()[0..4]
+        let shape112_out1: [i64; 4] = add141_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -5971,11 +5499,10 @@ impl<B: Backend> Model<B> {
         let cast144_out1 = div103_out1;
         let transpose65_out1 = add142_out1.permute([0, 1, 3, 2]);
         let sqrt62_out1 = cast144_out1.clone().sqrt();
-        let mul232_out1 = add141_out1
-            .mul(sqrt62_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul232_out1 = add141_out1.mul(sqrt62_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let sqrt63_out1 = cast144_out1.sqrt();
-        let mul233_out1 = transpose65_out1
-            .mul(sqrt63_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul233_out1 =
+            transpose65_out1.mul(sqrt63_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let matmul124_out1 = mul232_out1.matmul(mul233_out1);
         let add143_out1 = matmul124_out1.add(where3_out1);
         let softmax21_out1 = burn::tensor::activation::softmax(add143_out1, 3);
@@ -5989,9 +5516,9 @@ impl<B: Backend> Model<B> {
             &constant1023_out1[..],
             &constant1024_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape45_out1 = transpose66_out1.reshape(concat89_out1);
         let matmul126_out1 = self.matmul126.forward(reshape45_out1);
         let add144_out1 = add140_out1.add(matmul126_out1);
@@ -6002,9 +5529,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul127_out1 = self.matmul127.forward(layernormalization42_out1);
-        let shape113_out1: [i64; 3] = matmul127_out1
-            .clone()
-            .dims()[0..3]
+        let shape113_out1: [i64; 3] = matmul127_out1.clone().dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -6027,10 +5552,7 @@ impl<B: Backend> Model<B> {
         let constant1028_out1: [i64; 1] = [1i64];
         let add145_out1 = {
             let mut result = gather90_out1;
-            for (result_item, rhs_item) in result
-                .iter_mut()
-                .zip(constant1028_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant1028_out1.iter()) {
                 *result_item = result_item.saturating_add(*rhs_item);
             }
             result
@@ -6038,10 +5560,7 @@ impl<B: Backend> Model<B> {
         let constant1029_out1: [i64; 1] = [2i64];
         let div104_out1 = {
             let mut result = add145_out1;
-            for (result_item, rhs_item) in result
-                .iter_mut()
-                .zip(constant1029_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant1029_out1.iter()) {
                 *result_item = if *rhs_item != 0 {
                     *result_item / *rhs_item
                 } else {
@@ -6053,10 +5572,7 @@ impl<B: Backend> Model<B> {
         let constant1030_out1: [i64; 1] = [1i64];
         let mul234_out1 = {
             let mut result = div104_out1;
-            for (result_item, rhs_item) in result
-                .iter_mut()
-                .zip(constant1030_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant1030_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
@@ -6065,16 +5581,12 @@ impl<B: Backend> Model<B> {
         let constant1031_out1: [i64; 1] = [2i64];
         let mul235_out1 = {
             let mut result = div104_out1;
-            for (result_item, rhs_item) in result
-                .iter_mut()
-                .zip(constant1031_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant1031_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
         };
-        let slice147_out1 = matmul127_out1
-            .slice(s![.., .., mul234_out1[0]..mul235_out1[0]]);
+        let slice147_out1 = matmul127_out1.slice(s![.., .., mul234_out1[0]..mul235_out1[0]]);
         let constant1032_out1: f32 = 1.4142135f32;
         let div105_out1 = slice146_out1.clone().div_scalar(constant1032_out1);
         let erf21_out1 = div105_out1.erf();
@@ -6093,8 +5605,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul129_out1 = self.matmul129.forward(layernormalization43_out1.clone());
-        let shape114_out1: [i64; 3] = layernormalization43_out1
-            .dims()[0..3]
+        let shape114_out1: [i64; 3] = layernormalization43_out1.dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -6119,22 +5630,18 @@ impl<B: Backend> Model<B> {
             &constant1040_out1[..],
             &constant1041_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape46_out1 = matmul129_out1.reshape(concat90_out1);
         let transpose67_out1 = reshape46_out1.permute([0, 3, 2, 1, 4]);
         let split_tensors = transpose67_out1.split_with_sizes([1, 1, 1].to_vec(), 2);
-        let [split22_out1, split22_out2, split22_out3] = split_tensors
-            .try_into()
-            .unwrap();
+        let [split22_out1, split22_out2, split22_out3] = split_tensors.try_into().unwrap();
         let squeeze64_out1 = split22_out1.squeeze_dims(&[2]);
         let squeeze65_out1 = split22_out2.squeeze_dims(&[2]);
         let squeeze66_out1 = split22_out3.squeeze_dims(&[2]);
         let mul239_out1 = squeeze64_out1.clone().mul(unsqueeze13_out1.clone());
-        let shape115_out1: [i64; 4] = squeeze64_out1
-            .clone()
-            .dims()[0..4]
+        let shape115_out1: [i64; 4] = squeeze64_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -6156,19 +5663,14 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze144_out1[0]]);
         let unsqueeze145_out1 = [cast146_out1];
-        let slice149_out1 = squeeze64_out1
-            .slice(s![.., .., .., unsqueeze145_out1[0]..9223372036854775807]);
+        let slice149_out1 =
+            squeeze64_out1.slice(s![.., .., .., unsqueeze145_out1[0]..9223372036854775807]);
         let neg43_out1 = slice149_out1.neg();
-        let concat91_out1 = burn::tensor::Tensor::cat(
-            [neg43_out1, slice148_out1].into(),
-            3,
-        );
+        let concat91_out1 = burn::tensor::Tensor::cat([neg43_out1, slice148_out1].into(), 3);
         let mul240_out1 = concat91_out1.mul(unsqueeze14_out1.clone());
         let add148_out1 = mul239_out1.add(mul240_out1);
         let mul241_out1 = squeeze65_out1.clone().mul(unsqueeze13_out1);
-        let shape116_out1: [i64; 4] = squeeze65_out1
-            .clone()
-            .dims()[0..4]
+        let shape116_out1: [i64; 4] = squeeze65_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -6190,18 +5692,13 @@ impl<B: Backend> Model<B> {
             .clone()
             .slice(s![.., .., .., 0..unsqueeze146_out1[0]]);
         let unsqueeze147_out1 = [cast148_out1];
-        let slice151_out1 = squeeze65_out1
-            .slice(s![.., .., .., unsqueeze147_out1[0]..9223372036854775807]);
+        let slice151_out1 =
+            squeeze65_out1.slice(s![.., .., .., unsqueeze147_out1[0]..9223372036854775807]);
         let neg44_out1 = slice151_out1.neg();
-        let concat92_out1 = burn::tensor::Tensor::cat(
-            [neg44_out1, slice150_out1].into(),
-            3,
-        );
+        let concat92_out1 = burn::tensor::Tensor::cat([neg44_out1, slice150_out1].into(), 3);
         let mul242_out1 = concat92_out1.mul(unsqueeze14_out1);
         let add149_out1 = mul241_out1.add(mul242_out1);
-        let shape117_out1: [i64; 4] = add148_out1
-            .clone()
-            .dims()[0..4]
+        let shape117_out1: [i64; 4] = add148_out1.clone().dims()[0..4]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -6219,11 +5716,10 @@ impl<B: Backend> Model<B> {
         let cast150_out1 = div108_out1;
         let transpose68_out1 = add149_out1.permute([0, 1, 3, 2]);
         let sqrt65_out1 = cast150_out1.clone().sqrt();
-        let mul243_out1 = add148_out1
-            .mul(sqrt65_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul243_out1 = add148_out1.mul(sqrt65_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let sqrt66_out1 = cast150_out1.sqrt();
-        let mul244_out1 = transpose68_out1
-            .mul(sqrt66_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
+        let mul244_out1 =
+            transpose68_out1.mul(sqrt66_out1.unsqueeze_dims(&[0isize, 1isize, 2isize]));
         let matmul130_out1 = mul243_out1.matmul(mul244_out1);
         let add150_out1 = matmul130_out1.add(where2_out1);
         let softmax22_out1 = burn::tensor::activation::softmax(add150_out1, 3);
@@ -6237,9 +5733,9 @@ impl<B: Backend> Model<B> {
             &constant1070_out1[..],
             &constant1071_out1[..],
         ]
-            .concat()
-            .try_into()
-            .unwrap();
+        .concat()
+        .try_into()
+        .unwrap();
         let reshape47_out1 = transpose69_out1.reshape(concat93_out1);
         let matmul132_out1 = self.matmul132.forward(reshape47_out1);
         let add151_out1 = add147_out1.add(matmul132_out1);
@@ -6250,9 +5746,7 @@ impl<B: Backend> Model<B> {
                 .cast(dtype)
         };
         let matmul133_out1 = self.matmul133.forward(layernormalization44_out1);
-        let shape118_out1: [i64; 3] = matmul133_out1
-            .clone()
-            .dims()[0..3]
+        let shape118_out1: [i64; 3] = matmul133_out1.clone().dims()[0..3]
             .iter()
             .map(|&x| x as i64)
             .collect::<Vec<_>>()
@@ -6275,10 +5769,7 @@ impl<B: Backend> Model<B> {
         let constant1075_out1: [i64; 1] = [1i64];
         let add152_out1 = {
             let mut result = gather94_out1;
-            for (result_item, rhs_item) in result
-                .iter_mut()
-                .zip(constant1075_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant1075_out1.iter()) {
                 *result_item = result_item.saturating_add(*rhs_item);
             }
             result
@@ -6286,10 +5777,7 @@ impl<B: Backend> Model<B> {
         let constant1076_out1: [i64; 1] = [2i64];
         let div109_out1 = {
             let mut result = add152_out1;
-            for (result_item, rhs_item) in result
-                .iter_mut()
-                .zip(constant1076_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant1076_out1.iter()) {
                 *result_item = if *rhs_item != 0 {
                     *result_item / *rhs_item
                 } else {
@@ -6301,10 +5789,7 @@ impl<B: Backend> Model<B> {
         let constant1077_out1: [i64; 1] = [1i64];
         let mul245_out1 = {
             let mut result = div109_out1;
-            for (result_item, rhs_item) in result
-                .iter_mut()
-                .zip(constant1077_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant1077_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
@@ -6313,16 +5798,12 @@ impl<B: Backend> Model<B> {
         let constant1078_out1: [i64; 1] = [2i64];
         let mul246_out1 = {
             let mut result = div109_out1;
-            for (result_item, rhs_item) in result
-                .iter_mut()
-                .zip(constant1078_out1.iter())
-            {
+            for (result_item, rhs_item) in result.iter_mut().zip(constant1078_out1.iter()) {
                 *result_item = result_item.saturating_mul(*rhs_item);
             }
             result
         };
-        let slice154_out1 = matmul133_out1
-            .slice(s![.., .., mul245_out1[0]..mul246_out1[0]]);
+        let slice154_out1 = matmul133_out1.slice(s![.., .., mul245_out1[0]..mul246_out1[0]]);
         let constant1079_out1: f32 = 1.4142135f32;
         let div110_out1 = slice153_out1.clone().div_scalar(constant1079_out1);
         let erf22_out1 = div110_out1.erf();

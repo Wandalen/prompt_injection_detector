@@ -14,7 +14,11 @@ fn test_ort_injection_detection() -> anyhow::Result<()> {
     println!("Result: {}\n", result);
 
     // Verify result is valid
-    assert!(result == "benign" || result == "injection", "Invalid result: {}", result);
+    assert!(
+        result == "benign" || result == "injection",
+        "Invalid result: {}",
+        result
+    );
 
     Ok(())
 }
@@ -29,7 +33,11 @@ fn test_ort_benign_text() -> anyhow::Result<()> {
     println!("Result: {}\n", result);
 
     // Verify result is valid
-    assert!(result == "benign" || result == "injection", "Invalid result: {}", result);
+    assert!(
+        result == "benign" || result == "injection",
+        "Invalid result: {}",
+        result
+    );
 
     Ok(())
 }
@@ -49,7 +57,11 @@ fn test_ort_multiple_inputs() -> anyhow::Result<()> {
         println!("Result: {}\n", result);
 
         // Verify result is valid
-        assert!(result == "benign" || result == "injection", "Invalid result: {}", result);
+        assert!(
+            result == "benign" || result == "injection",
+            "Invalid result: {}",
+            result
+        );
     }
 
     Ok(())

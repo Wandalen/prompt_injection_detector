@@ -44,7 +44,9 @@ impl Detector {
     /// Perform inference on text
     fn detect_internal(&self, text: &str) -> Result<String> {
         // Run inference
-        let predictions = self.ctx.infer(vec![text.to_string()])
+        let predictions = self
+            .ctx
+            .infer(vec![text.to_string()])
             .context("Failed to run Burn inference")?;
 
         if predictions.is_empty() {
@@ -54,7 +56,10 @@ impl Detector {
         let prediction = &predictions[0];
 
         eprintln!("[Burn] Logits: {:?}", prediction.logits);
-        eprintln!("[Burn] Prediction: {} (class {})", prediction.class_name, prediction.class_index);
+        eprintln!(
+            "[Burn] Prediction: {} (class {})",
+            prediction.class_name, prediction.class_index
+        );
 
         // Map class names to expected format (benign/injection)
         // The model uses: 0=LEGITIMATE, 1=INJECTION
@@ -63,7 +68,11 @@ impl Detector {
             "injection" => "injection",
             _ => {
                 // Fallback to class index
-                if prediction.class_index == 0 { "benign" } else { "injection" }
+                if prediction.class_index == 0 {
+                    "benign"
+                } else {
+                    "injection"
+                }
             }
         };
 

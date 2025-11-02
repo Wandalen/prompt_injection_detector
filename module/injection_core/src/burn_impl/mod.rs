@@ -9,6 +9,6 @@ pub mod model;
 
 // Re-export main types
 pub use config::ExperimentConfig;
-pub use inference::{infer, InferenceContext, Prediction};
 pub use data::{BertCasedTokenizer, TextBatch, TextClassificationBatcher};
+pub use inference::{InferenceContext, Prediction, infer};
 pub use model::DebertaModel;

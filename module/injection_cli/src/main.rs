@@ -20,8 +20,8 @@
 
 use anyhow::{Context, Result};
 use colored::Colorize;
-use rustyline::error::ReadlineError;
 use rustyline::DefaultEditor;
+use rustyline::error::ReadlineError;
 use std::fs;
 use std::io::{self, Read};
 use std::time::Instant;
@@ -153,7 +153,10 @@ fn run_detect_mode(args: &[String]) -> Result<()> {
         let warmup_start = Instant::now();
         injection_core::init()?;
         if config.verbose {
-            eprintln!("Model loaded in {:.2}s", warmup_start.elapsed().as_secs_f64());
+            eprintln!(
+                "Model loaded in {:.2}s",
+                warmup_start.elapsed().as_secs_f64()
+            );
         }
     }
 
@@ -203,7 +206,10 @@ fn run_interactive_mode(args: &[String]) -> Result<()> {
     println!("Model loaded in {:.2}s\n", load_time.as_secs_f64());
 
     // Print welcome message
-    println!("{}", "Prompt Injection Detector (interactive mode)".bold().cyan());
+    println!(
+        "{}",
+        "Prompt Injection Detector (interactive mode)".bold().cyan()
+    );
     println!("Type 'exit', 'quit', or press Ctrl+D to quit\n");
 
     // Initialize readline
@@ -309,7 +315,12 @@ fn output_interactive_result(result: &str, duration: std::time::Duration, config
             } else {
                 ("✓", result.green().bold())
             };
-            println!("{} {} ({:.0}ms)", symbol, label_colored, duration.as_millis());
+            println!(
+                "{} {} ({:.0}ms)",
+                symbol,
+                label_colored,
+                duration.as_millis()
+            );
         }
         OutputFormat::Json => {
             let json = serde_json::json!({
@@ -350,7 +361,10 @@ fn parse_value(arg: &str, prefix: &str) -> String {
 
 /// Print comprehensive help message
 fn print_help() {
-    println!("{}", "injection_cli - Prompt Injection Detection".bold().cyan());
+    println!(
+        "{}",
+        "injection_cli - Prompt Injection Detection".bold().cyan()
+    );
     println!("Version: {}\n", env!("CARGO_PKG_VERSION"));
 
     #[cfg(feature = "backend-ort")]
@@ -359,25 +373,47 @@ fn print_help() {
     println!("{} Burn (with CUDA)\n", "Backend:".bold());
 
     println!("{}", "USAGE:".bold());
-    println!("  {} {} [OPTIONS]", "injection_cli".cyan(), ".detect".yellow());
+    println!(
+        "  {} {} [OPTIONS]",
+        "injection_cli".cyan(),
+        ".detect".yellow()
+    );
     println!("  {} {}\n", "injection_cli".cyan(), ".interactive".yellow());
 
     println!("{}", "COMMANDS:".bold());
     println!("  {}        Single detection mode", ".detect".yellow());
-    println!("  {}   Interactive chat mode (continuous detection)\n", ".interactive".yellow());
+    println!(
+        "  {}   Interactive chat mode (continuous detection)\n",
+        ".interactive".yellow()
+    );
 
     println!("{}", "DETECT MODE OPTIONS:".bold());
-    println!("  {}        Direct text input (required if no file/stdin)", "text::\"TEXT\"".green());
+    println!(
+        "  {}        Direct text input (required if no file/stdin)",
+        "text::\"TEXT\"".green()
+    );
     println!("  {}        Read from file", "file::\"PATH\"".green());
     println!("  (stdin)                Read from stdin (if no text/file specified)");
-    println!("  {}    Output format: human, json, simple, quiet", "format::FORMAT".green());
-    println!("  {}      Silent mode (exit code only: 0=benign, 1=injection)", "quiet::true".green());
+    println!(
+        "  {}    Output format: human, json, simple, quiet",
+        "format::FORMAT".green()
+    );
+    println!(
+        "  {}      Silent mode (exit code only: 0=benign, 1=injection)",
+        "quiet::true".green()
+    );
     println!("  {}    Show detailed logging", "verbose::true".green());
     println!("  {}             Show inference timing", "--time".green());
-    println!("  {}           Pre-load model before detection\n", "--warmup".green());
+    println!(
+        "  {}           Pre-load model before detection\n",
+        "--warmup".green()
+    );
 
     println!("{}", "INTERACTIVE MODE OPTIONS:".bold());
-    println!("  {}    Output format: human, json, simple", "format::FORMAT".green());
+    println!(
+        "  {}    Output format: human, json, simple",
+        "format::FORMAT".green()
+    );
     println!("  {}    Show detailed logging\n", "verbose::true".green());
 
     println!("{}", "EXAMPLES:".bold());
@@ -404,6 +440,14 @@ fn print_help() {
     println!("  injection_cli .detect text::\"test\" --warmup --time\n");
 
     println!("{}", "OPTIONS:".bold());
-    println!("  {}, {}      Show this help message", "-h".green(), "--help".green());
-    println!("  {}, {}   Show version information", "-V".green(), "--version".green());
+    println!(
+        "  {}, {}      Show this help message",
+        "-h".green(),
+        "--help".green()
+    );
+    println!(
+        "  {}, {}   Show version information",
+        "-V".green(),
+        "--version".green()
+    );
 }

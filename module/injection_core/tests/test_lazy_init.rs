@@ -88,7 +88,11 @@ fn test_multiple_sequential_calls() -> anyhow::Result<()> {
 
     for input in test_inputs {
         let result = detect(input)?;
-        assert!(result == "benign" || result == "injection", "Invalid result for: {}", input);
+        assert!(
+            result == "benign" || result == "injection",
+            "Invalid result for: {}",
+            input
+        );
     }
 
     Ok(())

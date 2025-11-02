@@ -1,12 +1,12 @@
 //! ORT (ONNX Runtime) backend with CUDA support
 
 use anyhow::{Context, Result};
+use ndarray::Array2;
 use ort::execution_providers::cuda::CUDAExecutionProvider;
 use ort::session::{Session, builder::GraphOptimizationLevel};
 use ort::value::TensorRef;
-use tokenizers::Tokenizer;
-use ndarray::Array2;
 use std::sync::{LazyLock, RwLock};
+use tokenizers::Tokenizer;
 
 /// Internal detector holding model and tokenizer
 struct Detector {
@@ -55,7 +55,9 @@ impl Detector {
     /// Perform inference on text
     fn detect_internal(&self, text: &str) -> Result<String> {
         // Tokenize input
-        let encoding = self.tokenizer.encode(text, true)
+        let encoding = self
+            .tokenizer
+            .encode(text, true)
             .map_err(|e| anyhow::anyhow!("Failed to tokenize input: {e}"))?;
 
         let input_ids = encoding.get_ids();
@@ -69,13 +71,15 @@ impl Detector {
 
         let input_ids_array = Array2::from_shape_vec(
             (batch_size, seq_length),
-            input_ids.iter().map(|&x| i64::from(x)).collect()
-        ).context("Failed to create input_ids array")?;
+            input_ids.iter().map(|&x| i64::from(x)).collect(),
+        )
+        .context("Failed to create input_ids array")?;
 
         let attention_mask_array = Array2::from_shape_vec(
             (batch_size, seq_length),
-            attention_mask.iter().map(|&x| i64::from(x)).collect()
-        ).context("Failed to create attention_mask array")?;
+            attention_mask.iter().map(|&x| i64::from(x)).collect(),
+        )
+        .context("Failed to create attention_mask array")?;
 
         eprintln!("[ORT] Running inference on CUDA...");
 
@@ -89,19 +93,25 @@ impl Detector {
 
         // SAFETY: We have exclusive access through RwLock write lock
         let session_ptr = std::ptr::addr_of!(self.session).cast_mut();
-        let outputs = unsafe { (*session_ptr).run(inputs) }
-            .context("Failed to run inference")?;
+        let outputs = unsafe { (*session_ptr).run(inputs) }.context("Failed to run inference")?;
 
         // Extract logits
         let (_, logits_data) = outputs["logits"]
             .try_extract_tensor::<f32>()
             .context("Failed to extract logits tensor")?;
 
-        eprintln!("[ORT] Logits: {:?}", &logits_data[..2.min(logits_data.len())]);
+        eprintln!(
+            "[ORT] Logits: {:?}",
+            &logits_data[..2.min(logits_data.len())]
+        );
 
         // Get prediction
         let class_idx = usize::from(logits_data[0] <= logits_data[1]);
-        let label = if class_idx == 0 { "benign" } else { "injection" };
+        let label = if class_idx == 0 {
+            "benign"
+        } else {
+            "injection"
+        };
 
         eprintln!("[ORT] Prediction: {label} (class {class_idx})");
 
