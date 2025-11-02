@@ -50,6 +50,7 @@ hf-hub = { workspace = true, optional = true }
 
 [build-dependencies]
 burn-import = { workspace = true, optional = true }
+ureq = { workspace = true }  # Required for downloading model files from HuggingFace
 
 [dev-dependencies]
 # Test utilities (future)

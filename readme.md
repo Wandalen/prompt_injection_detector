@@ -37,50 +37,58 @@ See [roadmap.md](./roadmap.md) for complete timeline.
 
 ### Model Installation
 
-Before building, you need to download the model files:
+**🎉 Automatic Download (Recommended)**
 
-**Option 1: Using Python (HuggingFace Hub)**
+Model files are **automatically downloaded** from HuggingFace during the first build:
 
 ```bash
-# Install dependencies
-pip install huggingface_hub torch transformers optimum onnx onnxruntime
-
-# Download and export model to ONNX
-python scripts/export_model.py
+# Just build - models download automatically!
+make build
+# or
+cargo build -p injection_cli --release
 ```
 
-**Option 2: Manual Download**
+The build script will:
+1. ✅ Create `artifacts/` directory if it doesn't exist
+2. ✅ Download `model.onnx` (572MB) from HuggingFace
+3. ✅ Download `tokenizer.json` (3.5MB)
+4. ✅ Download `config.json` (1.4KB)
+5. ✅ For Burn backend: auto-convert ONNX → MPK
+
+**Model Repository:** https://huggingface.co/tihilya/modernbert-base-prompt-injection-detection
+
+**Progress Output:**
+```
+Build script: model.onnx not found, downloading from HuggingFace...
+Build script: Downloading model.onnx from https://huggingface.co/...
+Build script: Downloaded 100 / 572 MB (17%)
+Build script: Downloaded 200 / 572 MB (34%)
+...
+Build script: ✓ Successfully downloaded model.onnx (599000438 bytes)
+```
+
+**Manual Download** (Optional)
+
+If automatic download fails due to network issues:
 
 ```bash
-# Create artifacts directory
+# Download from HuggingFace manually
 mkdir -p artifacts
-
-# Download ONNX model from HuggingFace or your model repository
-# Place the following files in artifacts/:
-#   - model.onnx (572MB) - ONNX format for ORT backend
-#   - tokenizer.json     - Tokenizer configuration
-#   - config.json        - Model configuration
-
-# For Burn backend, the MPK file is auto-generated:
-make rebuild-mpk  # Converts model.onnx → model.mpk
+cd artifacts
+wget https://huggingface.co/tihilya/modernbert-base-prompt-injection-detection/resolve/main/model.onnx
+wget https://huggingface.co/tihilya/modernbert-base-prompt-injection-detection/resolve/main/tokenizer.json
+wget https://huggingface.co/tihilya/modernbert-base-prompt-injection-detection/resolve/main/config.json
+cd ..
 ```
 
-**Expected artifacts structure:**
-```
-vllm_inferencer/
-├── artifacts/
-│   ├── model.onnx       # Required for ORT backend
-│   ├── model.mpk        # Auto-generated for Burn backend
-│   ├── tokenizer.json   # Required for both
-│   └── config.json      # Optional, for reference
-```
-
-**Verify installation:**
+**Verify Installation:**
 ```bash
 ls -lh artifacts/
 # Should show:
-# model.onnx    (~572MB)
-# tokenizer.json
+# config.json       1.4K
+# model.onnx        572M
+# tokenizer.json    3.5M
+# model.mpk         286M  (auto-generated for Burn backend)
 ```
 
 ### Build and Run

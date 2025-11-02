@@ -1,10 +1,13 @@
 # Makefile for Prompt Injection Detection System
 #
 # Quick start:
-#   make build          - Build CLI with ORT backend (default)
+#   make build          - Build CLI with ORT backend (default, auto-downloads models)
 #   make interactive    - Run interactive chat mode (ORT)
 #   make test-all       - Run all tests
 #   make help           - Show all available commands
+#
+# 📥 Model files are automatically downloaded from HuggingFace on first build!
+#    No manual download required - just run make build
 
 .PHONY: help build build-ort build-burn build-all test test-ort test-burn test-all \
         interactive interactive-burn detect clean rebuild-mpk doc install run
@@ -23,12 +26,14 @@ build: build-ort ## Build CLI with ORT backend (default, recommended)
 
 build-ort: ## Build injection_cli with ORT backend (ONNX Runtime + CUDA)
 	@echo "🔨 Building injection_cli with ORT backend..."
+	@echo "Note: Models download automatically from HuggingFace on first build"
 	cargo build -p injection_cli --release
 	@echo "✅ Build complete: target/release/injection_cli"
 
 build-burn: ## Build injection_cli with Burn backend (Burn + CUDA)
 	@echo "🔨 Building injection_cli with Burn backend..."
-	cargo build -p injection_cli --features backend-burn --no-default-features --release
+	@echo "Note: Models download automatically from HuggingFace on first build"
+	BURN_IMPORT_ONNX=1 cargo build -p injection_cli --features backend-burn --no-default-features --release
 	@echo "✅ Build complete: target/release/injection_cli"
 
 build-all: build-ort build-burn ## Build both ORT and Burn backends
@@ -37,7 +42,7 @@ build-core-ort: ## Build injection_core library with ORT backend
 	cargo build -p injection_core --features backend-ort --release
 
 build-core-burn: ## Build injection_core library with Burn backend
-	cargo build -p injection_core --features backend-burn --no-default-features --release
+	BURN_IMPORT_ONNX=1 cargo build -p injection_core --features backend-burn --no-default-features --release
 
 ##@ Testing
 
@@ -195,7 +200,12 @@ dev-setup: ## Setup development environment
 	@cargo --version
 	@echo "Checking CUDA availability..."
 	@nvidia-smi --query-gpu=name,driver_version,memory.total --format=csv,noheader || echo "Warning: CUDA not available"
-	@echo "Checking model files..."
-	@ls -lh artifacts/model.onnx 2>/dev/null || echo "Warning: artifacts/model.onnx not found"
-	@ls -lh artifacts/model.mpk 2>/dev/null || echo "Info: artifacts/model.mpk not found (will be generated for Burn backend)"
+	@echo ""
+	@echo "📥 Model files (auto-downloaded on first build):"
+	@ls -lh artifacts/model.onnx 2>/dev/null && echo "✓ model.onnx found" || echo "○ model.onnx (will download on first build)"
+	@ls -lh artifacts/tokenizer.json 2>/dev/null && echo "✓ tokenizer.json found" || echo "○ tokenizer.json (will download on first build)"
+	@ls -lh artifacts/config.json 2>/dev/null && echo "✓ config.json found" || echo "○ config.json (will download on first build)"
+	@ls -lh artifacts/model.mpk 2>/dev/null && echo "✓ model.mpk found (Burn)" || echo "○ model.mpk (will generate on first Burn build)"
+	@echo ""
 	@echo "✅ Development environment check complete"
+	@echo "Run 'make build' to start (models download automatically!)"
