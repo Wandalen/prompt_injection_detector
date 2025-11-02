@@ -67,11 +67,12 @@ make rebuild-mpk  # Converts model.onnx → model.mpk
 
 **Expected artifacts structure:**
 ```
-vllm_inferencer/
+prompt_injection_detector/
 ├── artifacts/
 │   ├── model.onnx       # Required for ORT backend
 │   ├── model.mpk        # Auto-generated for Burn backend
-│   ├── tokenizer.json   # Required for both
+│   ├── tokenizer/
+│   │   └── tokenizer.json  # Required for both
 │   └── config.json      # Optional, for reference
 ```
 

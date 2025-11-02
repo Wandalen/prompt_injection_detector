@@ -1,3 +1,8 @@
+//! Build script for `injection_core`
+//!
+//! When the `backend-burn` feature is enabled, this script converts the ONNX model
+//! to Burn format (.mpk) if not already present.
+
 #[cfg(feature = "backend-burn")]
 use std::path::Path;
 

@@ -1,4 +1,4 @@
-//! injection_cli - Prompt injection detection CLI
+//! `injection_cli` - Prompt injection detection CLI
 //!
 //! CLI for detecting prompt injections using ModernBERT-based model with ORT or Burn backend.
 //!
@@ -19,7 +19,7 @@
 //! ```
 
 use anyhow::{Context, Result};
-use colored::*;
+use colored::Colorize;
 use rustyline::error::ReadlineError;
 use rustyline::DefaultEditor;
 use std::fs;
@@ -73,13 +73,13 @@ fn main() -> Result<()> {
     }
 
     // Parse command
-    let command = args.get(1).map(|s| s.as_str()).unwrap_or("");
+    let command = args.get(1).map_or("", std::string::String::as_str);
 
     match command {
         ".detect" | "detect" => run_detect_mode(&args[2..]),
         ".interactive" | ".chat" | "interactive" | "chat" => run_interactive_mode(&args[2..]),
         _ => {
-            eprintln!("Error: Unknown command '{}'", command);
+            eprintln!("Error: Unknown command '{command}'");
             eprintln!("Use --help for usage information");
             std::process::exit(1);
         }
@@ -107,7 +107,7 @@ fn run_detect_mode(args: &[String]) -> Result<()> {
                 "quiet" => OutputFormat::Quiet,
                 "human" => OutputFormat::Human,
                 _ => {
-                    eprintln!("Warning: Unknown format '{}', using 'human'", fmt);
+                    eprintln!("Warning: Unknown format '{fmt}', using 'human'");
                     OutputFormat::Human
                 }
             };
@@ -131,7 +131,7 @@ fn run_detect_mode(args: &[String]) -> Result<()> {
         t
     } else if let Some(f) = file {
         fs::read_to_string(&f)
-            .with_context(|| format!("Failed to read file: {}", f))?
+            .with_context(|| format!("Failed to read file: {f}"))?
             .trim()
             .to_string()
     } else {
@@ -167,7 +167,7 @@ fn run_detect_mode(args: &[String]) -> Result<()> {
 
     // Exit code for quiet mode
     if config.format == OutputFormat::Quiet {
-        std::process::exit(if result == "injection" { 1 } else { 0 });
+        std::process::exit(i32::from(result == "injection"));
     }
 
     Ok(())
@@ -175,8 +175,10 @@ fn run_detect_mode(args: &[String]) -> Result<()> {
 
 /// Run interactive/chat mode
 fn run_interactive_mode(args: &[String]) -> Result<()> {
-    let mut config = Config::default();
-    config.show_time = true; // Always show timing in interactive mode
+    let mut config = Config {
+        show_time: true, // Always show timing in interactive mode
+        ..Default::default()
+    };
 
     // Parse arguments
     for arg in args {
@@ -241,7 +243,6 @@ fn run_interactive_mode(args: &[String]) -> Result<()> {
             Err(ReadlineError::Interrupted) => {
                 // Ctrl+C
                 println!("^C");
-                continue;
             }
             Err(ReadlineError::Eof) => {
                 // Ctrl+D
@@ -249,7 +250,7 @@ fn run_interactive_mode(args: &[String]) -> Result<()> {
                 break;
             }
             Err(err) => {
-                eprintln!("Error: {}", err);
+                eprintln!("Error: {err}");
                 break;
             }
         }
@@ -285,12 +286,12 @@ fn output_result(
                 "label": result,
                 "is_injection": result == "injection",
                 "text": if config.verbose { Some(text) } else { None },
-                "time_ms": duration.as_millis() as u64,
+                "time_ms": u64::try_from(duration.as_millis()).unwrap_or(u64::MAX),
             });
             println!("{}", serde_json::to_string_pretty(&json)?);
         }
         OutputFormat::Simple => {
-            println!("{}", result);
+            println!("{result}");
         }
         OutputFormat::Quiet => {
             // Silent output, just exit code
@@ -314,18 +315,18 @@ fn output_interactive_result(result: &str, duration: std::time::Duration, config
             let json = serde_json::json!({
                 "label": result,
                 "is_injection": result == "injection",
-                "time_ms": duration.as_millis() as u64,
+                "time_ms": u64::try_from(duration.as_millis()).unwrap_or(u64::MAX),
             });
             if let Ok(s) = serde_json::to_string(&json) {
-                println!("{}", s);
+                println!("{s}");
             }
         }
         OutputFormat::Simple => {
-            println!("{}", result);
+            println!("{result}");
         }
         OutputFormat::Quiet => {
             // Not applicable in interactive mode
-            println!("{}", result);
+            println!("{result}");
         }
     }
 }
@@ -333,7 +334,7 @@ fn output_interactive_result(result: &str, duration: std::time::Duration, config
 /// Parse unilang-style parameter value
 fn parse_value(arg: &str, prefix: &str) -> String {
     let value = arg
-        .strip_prefix(&format!("{}::", prefix))
+        .strip_prefix(&format!("{prefix}::"))
         .unwrap_or("")
         .trim();
 
@@ -350,7 +351,7 @@ fn parse_value(arg: &str, prefix: &str) -> String {
 /// Print comprehensive help message
 fn print_help() {
     println!("{}", "injection_cli - Prompt Injection Detection".bold().cyan());
-    println!("{} {}\n", "Version:", env!("CARGO_PKG_VERSION"));
+    println!("Version: {}\n", env!("CARGO_PKG_VERSION"));
 
     #[cfg(feature = "backend-ort")]
     println!("{} ORT (ONNX Runtime with CUDA)\n", "Backend:".bold());
@@ -358,7 +359,7 @@ fn print_help() {
     println!("{} Burn (with CUDA)\n", "Backend:".bold());
 
     println!("{}", "USAGE:".bold());
-    println!("  {} {} {}", "injection_cli".cyan(), ".detect".yellow(), "[OPTIONS]");
+    println!("  {} {} [OPTIONS]", "injection_cli".cyan(), ".detect".yellow());
     println!("  {} {}\n", "injection_cli".cyan(), ".interactive".yellow());
 
     println!("{}", "COMMANDS:".bold());
@@ -368,7 +369,7 @@ fn print_help() {
     println!("{}", "DETECT MODE OPTIONS:".bold());
     println!("  {}        Direct text input (required if no file/stdin)", "text::\"TEXT\"".green());
     println!("  {}        Read from file", "file::\"PATH\"".green());
-    println!("  {}                Read from stdin (if no text/file specified)", "(stdin)");
+    println!("  (stdin)                Read from stdin (if no text/file specified)");
     println!("  {}    Output format: human, json, simple, quiet", "format::FORMAT".green());
     println!("  {}      Silent mode (exit code only: 0=benign, 1=injection)", "quiet::true".green());
     println!("  {}    Show detailed logging", "verbose::true".green());

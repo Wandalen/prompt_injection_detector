@@ -10,12 +10,12 @@ pnpm-lock.yaml
 poetry.lock
 
 # Secrets - NEVER commit these
-# Ignore all secret content but keep folder structure and templates
+# Ignore all secret content but keep folder structure and hyphen-prefixed templates
 secret/*
 !secret/readme.md
-!secret/*.template
-!secret/*.template.*
-!secret/*_template.*
+!secret/-*.template
+!secret/-*.template.*
+!secret/-*_template.*
 
 # Additional secret file patterns
 *.key
