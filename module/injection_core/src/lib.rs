@@ -1,4 +1,4 @@
-//! injection_core library
+//! `injection_core` library
 //!
 //! Prompt injection detection engine with pluggable backends (ORT or Burn).
 
@@ -35,14 +35,3 @@ pub mod backend;
 
 // Re-export main API functions
 pub use backend::{detect, init};
-
-// Legacy modules (disabled for now - use backend instead)
-// TODO: Remove or refactor these old modules
-// #[cfg(feature = "backend-ort")]
-// pub mod classify;
-// #[cfg(feature = "backend-ort")]
-// pub mod error;
-// #[cfg(feature = "backend-ort")]
-// pub mod model;
-// #[cfg(feature = "backend-ort")]
-// pub mod tokenizer;

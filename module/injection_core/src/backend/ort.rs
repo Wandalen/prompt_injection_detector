@@ -6,8 +6,7 @@ use ort::session::{Session, builder::GraphOptimizationLevel};
 use ort::value::TensorRef;
 use tokenizers::Tokenizer;
 use ndarray::Array2;
-use once_cell::sync::Lazy;
-use std::sync::RwLock;
+use std::sync::{LazyLock, RwLock};
 
 /// Internal detector holding model and tokenizer
 struct Detector {
@@ -40,13 +39,13 @@ impl Detector {
             .with_optimization_level(GraphOptimizationLevel::Level3)?
             .with_execution_providers([CUDAExecutionProvider::default().build()])?
             .commit_from_file(&model_path)
-            .context(format!("Failed to load model from {}", model_path))?;
+            .context(format!("Failed to load model from {model_path}"))?;
 
         eprintln!("[ORT] Model loaded successfully");
 
         // Load tokenizer
         let tokenizer = Tokenizer::from_file(&tokenizer_path)
-            .map_err(|e| anyhow::anyhow!("Failed to load tokenizer from {}: {}", tokenizer_path, e))?;
+            .map_err(|e| anyhow::anyhow!("Failed to load tokenizer from {tokenizer_path}: {e}"))?;
 
         eprintln!("[ORT] Tokenizer loaded successfully");
 
@@ -57,7 +56,7 @@ impl Detector {
     fn detect_internal(&self, text: &str) -> Result<String> {
         // Tokenize input
         let encoding = self.tokenizer.encode(text, true)
-            .map_err(|e| anyhow::anyhow!("Failed to tokenize input: {}", e))?;
+            .map_err(|e| anyhow::anyhow!("Failed to tokenize input: {e}"))?;
 
         let input_ids = encoding.get_ids();
         let attention_mask = encoding.get_attention_mask();
@@ -70,12 +69,12 @@ impl Detector {
 
         let input_ids_array = Array2::from_shape_vec(
             (batch_size, seq_length),
-            input_ids.iter().map(|&x| x as i64).collect()
+            input_ids.iter().map(|&x| i64::from(x)).collect()
         ).context("Failed to create input_ids array")?;
 
         let attention_mask_array = Array2::from_shape_vec(
             (batch_size, seq_length),
-            attention_mask.iter().map(|&x| x as i64).collect()
+            attention_mask.iter().map(|&x| i64::from(x)).collect()
         ).context("Failed to create attention_mask array")?;
 
         eprintln!("[ORT] Running inference on CUDA...");
@@ -89,7 +88,7 @@ impl Detector {
         ];
 
         // SAFETY: We have exclusive access through RwLock write lock
-        let session_ptr = &self.session as *const Session as *mut Session;
+        let session_ptr = std::ptr::addr_of!(self.session).cast_mut();
         let outputs = unsafe { (*session_ptr).run(inputs) }
             .context("Failed to run inference")?;
 
@@ -101,17 +100,17 @@ impl Detector {
         eprintln!("[ORT] Logits: {:?}", &logits_data[..2.min(logits_data.len())]);
 
         // Get prediction
-        let class_idx = if logits_data[0] > logits_data[1] { 0 } else { 1 };
+        let class_idx = usize::from(logits_data[0] <= logits_data[1]);
         let label = if class_idx == 0 { "benign" } else { "injection" };
 
-        eprintln!("[ORT] Prediction: {} (class {})", label, class_idx);
+        eprintln!("[ORT] Prediction: {label} (class {class_idx})");
 
         Ok(label.to_string())
     }
 }
 
 /// Global cached detector instance
-static DETECTOR: Lazy<RwLock<Option<Detector>>> = Lazy::new(|| RwLock::new(None));
+static DETECTOR: LazyLock<RwLock<Option<Detector>>> = LazyLock::new(|| RwLock::new(None));
 
 /// Initialize the detector (pre-load model and tokenizer)
 ///
@@ -120,6 +119,18 @@ static DETECTOR: Lazy<RwLock<Option<Detector>>> = Lazy::new(|| RwLock::new(None)
 /// - Fail fast if model files are missing
 /// - Avoid latency on first inference
 /// - Pre-load in a controlled manner
+///
+/// # Errors
+///
+/// Returns an error if:
+/// - The `artifacts/` directory cannot be found
+/// - The model file (`model.onnx`) is missing or invalid
+/// - The tokenizer file is missing or invalid
+/// - CUDA initialization fails (will fall back to CPU)
+///
+/// # Panics
+///
+/// Panics if the internal `RwLock` is poisoned (extremely rare, only if another thread panicked while holding the lock)
 pub fn init() -> Result<()> {
     let mut detector = DETECTOR.write().unwrap();
     if detector.is_none() {
@@ -132,6 +143,18 @@ pub fn init() -> Result<()> {
 ///
 /// The model is loaded lazily on first call, or eagerly if `init()` was called.
 /// Subsequent calls reuse the cached model for fast inference.
+///
+/// # Errors
+///
+/// Returns an error if:
+/// - Model initialization fails (see `init()` for details)
+/// - Text tokenization fails (input too long or invalid UTF-8)
+/// - Inference fails (CUDA/ONNX Runtime error)
+/// - Output tensor extraction fails
+///
+/// # Panics
+///
+/// Panics if the internal `RwLock` is poisoned or the detector fails to initialize after `init()` succeeds
 pub fn detect(text: &str) -> Result<String> {
     // Fast path: try read lock first
     {

@@ -81,14 +81,23 @@ wget https://huggingface.co/tihilya/modernbert-base-prompt-injection-detection/r
 cd ..
 ```
 
-**Verify Installation:**
+**Expected artifacts structure:**
+```
+prompt_injection_detector/
+├── artifacts/
+│   ├── model.onnx       # Required for ORT backend
+│   ├── model.mpk        # Auto-generated for Burn backend
+│   ├── tokenizer/
+│   │   └── tokenizer.json  # Required for both
+│   └── config.json      # Optional, for reference
+```
+
+**Verify installation:**
 ```bash
 ls -lh artifacts/
 # Should show:
-# config.json       1.4K
-# model.onnx        572M
-# tokenizer.json    3.5M
-# model.mpk         286M  (auto-generated for Burn backend)
+# model.onnx    (~572MB)
+# tokenizer.json
 ```
 
 ### Build and Run
