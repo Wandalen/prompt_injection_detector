@@ -3,8 +3,6 @@
 //! When the `backend-burn` feature is enabled, this script converts the ONNX model
 //! to Burn format (.mpk) if not already present.
 
-#[cfg(feature = "backend-burn")]
-use std::path::Path;
 use std::fs;
 use std::io::{Read, Write};
 use std::path::Path;
