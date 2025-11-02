@@ -39,10 +39,21 @@ secret/*
 *.gguf
 *.pt
 *.pth
+*.onnx
+*.mpk
+*.pb
+
+# Model-related files
+*.engine
+*.profile
+*.timing
 
 # HuggingFace cache
 .cache/
 models/
+
+# Artifacts directory (contains large model files)
+artifacts/
 
 # IDE/Editor files
 .vscode/

@@ -1,0 +1,58 @@
+[package]
+name = "injection_core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Core prompt injection detection library using ONNX Runtime"
+repository = "https://github.com/your-org/prompt_injection_detector"
+keywords = ["security", "prompt-injection", "ml", "deberta", "detection"]
+categories = ["machine-learning"]
+
+[lints]
+workspace = true
+
+[lib]
+name = "injection_core"
+path = "src/lib.rs"
+
+[features]
+default = ["backend-ort"]
+enabled = []
+backend-ort = ["enabled", "dep:ort", "dep:ndarray", "dep:tokenizers"]
+backend-burn = ["enabled", "dep:burn", "dep:burn-ndarray", "dep:cudarc", "dep:tempfile", "dep:which", "dep:tokenizers", "burn-import"]
+full = ["backend-ort"]  # Backward compatibility
+
+[dependencies]
+# Shared
+anyhow = { workspace = true }
+tokenizers = { workspace = true, optional = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+once_cell = { workspace = true }
+
+# ORT Backend with CUDA
+ort = { workspace = true, optional = true }
+ndarray = { workspace = true, optional = true }
+
+# Burn Backend with CUDA
+burn = { workspace = true, optional = true }
+burn-ndarray = { workspace = true, optional = true }
+cudarc = { workspace = true, optional = true }
+tempfile = { workspace = true, optional = true }
+which = { workspace = true, optional = true }
+
+# Legacy dependencies (kept for compatibility)
+error_tools = { workspace = true, optional = true }
+workspace_tools = { workspace = true, optional = true }
+hf-hub = { workspace = true, optional = true }
+
+[build-dependencies]
+burn-import = { workspace = true, optional = true }
+
+[dev-dependencies]
+# Test utilities (future)
+
+# Note: Burn CUDA backend requires larger stack size in debug builds
+# Run tests with: RUST_MIN_STACK=16777216 cargo test --features backend-burn

@@ -1,10 +1,10 @@
 # spec
 
-- **Project Name:** vllm_inferencer
-- **Version:** 0.1
-- **Date:** 2025-10-21
-- **Type:** System Specification (Ultra-Minimal MVP)
-- **Scope:** Milestone 1-3 (CLI Generation, HTTP API, KV Cache Optimization)
+- **Project Name:** prompt_injection_detector
+- **Version:** 0.2
+- **Date:** 2025-10-25
+- **Type:** System Specification (Security Detection System)
+- **Scope:** Milestone 1-3 (CLI Detection, HTTP API, Container Deployment)
 
 ---
 
@@ -33,62 +33,91 @@
 
 ## Vocabulary
 
-This section defines the Ubiquitous Language for the vllm_inferencer project. All terms must be used consistently throughout the specification, source code, and project communications.
+This section defines the Ubiquitous Language for the prompt_injection_detector project. All terms must be used consistently throughout the specification, source code, and project communications.
 
-- **Inference:** The process of using a trained Large Language Model to generate predictions or text outputs based on input prompts.
-- **Inference Engine:** The core system component responsible for executing the Inference process, including tokenization, model forward pass, and token generation.
+- **Prompt Injection:** A security attack where malicious text is crafted to manipulate or override the intended behavior of a language model by injecting commands or instructions.
+- **Detection:** The process of using a trained machine learning model to classify input text as either benign or containing a prompt injection attack.
+- **Classifier:** The core system component responsible for executing Detection, including tokenization, model inference, and classification scoring.
 - **Token:** The atomic unit of text processing in language models. A single word or subword unit produced by the Tokenizer.
-- **Tokenizer:** A component that converts raw text (strings) into sequences of Tokens that the Model can process, and converts Tokens back to text.
-- **Model:** The pre-trained Large Language Model neural network containing learned parameters (weights). For MVP, specifically GPT-2 Small (124M parameters).
-- **Generation:** The iterative process of producing output Tokens one at a time based on a Prompt and previously generated Tokens.
-- **Prompt:** The input text string provided by the API Client to initialize the Generation process.
-- **Greedy Sampling:** A simple Generation strategy that always selects the Token with the highest probability at each step. Produces deterministic outputs.
-- **KV Cache:** Key-Value Cache. A memory optimization that stores intermediate attention computations from previous Tokens to avoid recomputation during Generation, providing 5-10x speedup.
-- **API Client:** Any external system or user that sends HTTP requests to the Inference Engine HTTP Server to perform Inference.
-- **HTTP Server:** The web service component that exposes the Inference Engine functionality via RESTful HTTP endpoints.
-- **GPU (Graphics Processing Unit):** Hardware accelerator used to execute Model computations. Required for practical Inference performance.
-- **CUDA:** NVIDIA's parallel computing platform and programming model for GPU acceleration.
-- **Candle:** The Rust machine learning framework by HuggingFace used to implement the Inference Engine.
-- **SafeTensors:** A secure file format for storing and loading Model weights/parameters.
-- **HuggingFace Hub:** Online repository hosting pre-trained Models and Tokenizers. Source for GPT-2 Small in MVP.
-- **Max Tokens:** Parameter limiting the maximum number of Tokens to generate during a single Inference request.
-- **Sequence Length:** The total number of Tokens in a Prompt plus generated Tokens.
+- **Tokenizer:** A component that converts raw text (strings) into sequences of Tokens that the Model can process. For DeBERTa, max 512 tokens.
+- **Model:** The pre-trained DeBERTa classification model (protectai/deberta-v3-base-prompt-injection-v2) containing 200M learned parameters.
+- **Binary Classification:** The task of categorizing input text into exactly two classes: benign (0) or injection (1).
+- **Confidence Score:** A floating-point value between 0.0 and 1.0 indicating the model's certainty in its classification decision.
+- **Threshold:** A configurable value (default 0.5) used to determine the classification boundary. Scores above threshold indicate injection.
+- **ONNX:** Open Neural Network Exchange, a standard format for representing machine learning models enabling cross-platform inference.
+- **ONNX Runtime:** A high-performance inference engine for ONNX models, optimized for production deployment.
+- **API Client:** Any external system or user that sends HTTP requests to the Detection Server to analyze text for injection attacks.
+- **HTTP Server:** The web service component that exposes the Detection functionality via RESTful HTTP endpoints.
+- **GPU (Graphics Processing Unit):** Optional hardware accelerator used to execute Model computations. Not required but improves performance.
+- **CUDA:** NVIDIA's parallel computing platform for GPU acceleration. Optional for CPU-only deployments.
+- **HuggingFace Hub:** Online repository hosting pre-trained Models. Source for ProtectAI's DeBERTa model.
+- **Benign:** Classification label (0) indicating the input text does not contain a prompt injection attack.
+- **Injection:** Classification label (1) indicating the input text likely contains a prompt injection attack.
 
 ---
 
 ## Project Goal
 
-**Prove Candle framework works for LLM inference in 1 week.**
+**Detect prompt injection attacks with 95%+ accuracy using ONNX Runtime.**
 
-Load GPT-2 Small to GPU, generate coherent text from a prompt, print to console. That's it. No HTTP, no optimization, no complexity. Just validate the core technical stack works before investing in anything else.
+Load DeBERTa model, classify text as benign or injection, deploy to production. Prove ONNX Runtime provides fast, accurate ML inference in Rust. That's it.
 
 ---
 
 ## Problem Solved
 
-**Risk Validation:** Is Candle mature enough for LLM inference, or should we use PyTorch?
+**Security Need:** Protect LLM applications from prompt injection attacks that can manipulate model behavior, extract sensitive information, or bypass safety guardrails.
 
-Answer this question in 1 week with working code, not months of planning. If Candle works: great, continue. If not: pivot to PyTorch immediately.
+Provide a production-ready, high-performance detection system that can be deployed as a standalone service or integrated into existing applications. Enable developers to validate user inputs before sending to LLM systems.
 
 ---
 
 ## User Stories
 
-### US-1: Developer - Technical Validation
-**As a** Developer
-**I want** to run a CLI command and see generated text
-**So that** I know Candle framework is viable for this project
+### US-1: Security Engineer - Injection Detection
+**As a** Security Engineer
+**I want** to detect prompt injection attempts in user input
+**So that** I can protect my LLM application from malicious manipulation
 
-That's the only user story. Everything else is future work.
+**Acceptance Criteria:**
+- CLI tool accepts text input and returns classification
+- Confidence score indicates detection certainty
+- 95%+ accuracy on known injection patterns
+- Response time < 100ms for typical inputs
+
+### US-2: Developer - API Integration
+**As a** Application Developer
+**I want** to call a REST API to check for prompt injections
+**So that** I can integrate detection into my existing application
+
+**Acceptance Criteria:**
+- HTTP endpoint accepts JSON requests
+- Returns structured JSON response with label and confidence
+- Handles concurrent requests safely
+- Clear error messages for invalid inputs
+
+### US-3: DevOps - Production Deployment
+**As a** DevOps Engineer
+**I want** to deploy the detection system to cloud infrastructure
+**So that** I can run it at scale with GPU acceleration
+
+**Acceptance Criteria:**
+- Docker container runs on Vast.ai/RunPod
+- GPU acceleration works in container
+- Model caches properly to avoid re-downloads
+- Health endpoint for monitoring
 
 ---
 
 ## System Actors
 
-1. **Developer** - Runs CLI, views generated text
-2. **Inference Engine** - Loads model, generates text
-3. **HuggingFace Hub** - Provides GPT-2 model files
-4. **GPU** - Executes model computations
+1. **Security Engineer** - Uses CLI to test injection detection
+2. **Application Developer** - Integrates HTTP API into applications
+3. **DevOps Engineer** - Deploys and maintains system in production
+4. **Classifier** - Loads model, performs detection
+5. **HuggingFace Hub** - Provides DeBERTa model files
+6. **ONNX Runtime** - Executes model inference
+7. **GPU (optional)** - Accelerates model computations
 
 ---
 
@@ -96,24 +125,38 @@ That's the only user story. Everything else is future work.
 
 ### Public Contract (Mandatory Requirements)
 
-#### FR-1: Load GPT-2 to GPU
-**Requirement:** The system **must** load GPT-2 Small from HuggingFace Hub to GPU memory.
+#### FR-1: Load DeBERTa Model via ONNX Runtime
+**Requirement:** The system **must** load protectai/deberta-v3-base-prompt-injection-v2 model from HuggingFace Hub using ONNX Runtime.
 
-**Test:** Run `nvidia-smi`, see ~500MB-2GB allocated.
-
----
-
-#### FR-2: Generate Text from Prompt
-**Requirement:** The system **must** generate text given a prompt string.
-
-**Test:** Run with prompt "Hello", get coherent continuation.
+**Test:** Model loads successfully, ONNX session initializes without errors.
 
 ---
 
-#### FR-3: CLI Interface
-**Requirement:** The system **must** accept `--prompt` argument and print generated text.
+#### FR-2: Classify Text as Benign or Injection
+**Requirement:** The system **must** classify input text into two categories: benign (0) or injection (1) with confidence score.
 
-**Test:** `cargo run -- --prompt "Test"` prints generated text to stdout.
+**Test:** Known injection example "Ignore all previous instructions" returns label=injection with confidence > 0.9.
+
+---
+
+#### FR-3: CLI Detection Interface
+**Requirement:** The system **must** accept `.detect text::"input"` command and return classification result.
+
+**Test:** `cargo run -p injection_cli --features full -- .detect text::"test"` prints label and confidence.
+
+---
+
+#### FR-4: HTTP Detection API
+**Requirement:** The system **must** expose `/detect` POST endpoint accepting JSON with `text` field, returning `label`, `confidence`, and `is_safe`.
+
+**Test:** `curl -X POST http://localhost:3000/detect -d '{"text":"test"}'` returns valid JSON response.
+
+---
+
+#### FR-5: Docker Container Deployment
+**Requirement:** The system **must** run in a Docker container with NVIDIA GPU support (optional) and model caching.
+
+**Test:** `docker run -p 3000:3000 prompt-injection-detector` starts successfully, /health returns 200 OK.
 
 ---
 
@@ -123,28 +166,28 @@ These recommendations suggest implementation approaches for internal components.
 
 #### DR-1: Model Loading Architecture
 **Recommendation:** It is **recommended** that Model loading be implemented in a dedicated `model.rs` module with the following responsibilities:
-- Download Model files from HuggingFace Hub using `hf-hub` crate
-- Parse SafeTensors format using `safetensors` crate
-- Load Model weights into Candle `VarBuilder` on GPU device
-- Validate Model architecture matches GPT-2 Small configuration
-- Expose `ModelLoader::load()` API returning loaded Model instance
+- Download ONNX Model files from HuggingFace Hub using `hf-hub` crate
+- Initialize ONNX Runtime session with model file
+- Configure execution providers (CUDA for GPU, CPU fallback)
+- Load tokenizer configuration for DeBERTa
+- Validate model inputs/outputs match expected schema
+- Expose `ModelLoader::new()` API returning initialized session
 
-**Rationale:** Separation of concerns allows Model loading logic to evolve independently from Generation logic.
+**Rationale:** Separation of concerns allows Model loading logic to evolve independently from Classification logic. ONNX Runtime handles model optimization automatically.
 
 ---
 
-#### DR-2: Generation Loop Structure
-**Recommendation:** The Generation loop **should** be implemented as an iterative process:
-1. Tokenize Prompt to initial Token sequence
-2. For each step until Max Tokens or EOS:
-   - Run Model forward pass on current Token sequence (or last Token if using KV Cache)
-   - Extract logits for next Token position
-   - Apply Greedy Sampling (select argmax)
-   - Append selected Token to sequence
-   - Update KV Cache with new key/value tensors
-3. Decode final Token sequence to text string
+#### DR-2: Classification Logic Structure
+**Recommendation:** The Classification process **should** be implemented as follows:
+1. Tokenize input text to Token IDs (max 512 tokens)
+2. Create ONNX Runtime inputs (input_ids, attention_mask)
+3. Run ONNX session inference
+4. Extract logits from output tensor
+5. Apply softmax to get class probabilities
+6. Determine label (0=benign, 1=injection) based on threshold
+7. Return classification result with confidence score
 
-**Rationale:** This structure is standard for autoregressive Generation and maps cleanly to Candle's tensor operations.
+**Rationale:** This structure follows standard text classification patterns and leverages ONNX Runtime's optimized inference pipeline.
 
 ---
 
@@ -570,13 +613,14 @@ This section documents all external services and libraries that the Inference En
 | Component | Technology | Version | Rationale |
 |-----------|-----------|---------|-----------|
 | **Programming Language** | Rust | 1.70+ | Memory safety, performance, zero-cost abstractions |
-| **ML Framework** | Candle | 0.8.x | Pure Rust, GPU support, HuggingFace compatibility |
-| **GPU Runtime** | CUDA | 11.0+ | NVIDIA GPU acceleration |
+| **ML Framework** | ONNX Runtime | 1.16.x | Production-grade inference, optimized performance |
+| **CLI Framework** | Unilang | 0.30.x | Command-centric design, O(1) lookups, compile-time validation |
+| **GPU Runtime** | CUDA | 11.8+ (optional) | NVIDIA GPU acceleration (optional for CPU mode) |
 | **HTTP Server** | Axum | 0.7.x | Modern async framework, ergonomic API |
 | **Async Runtime** | Tokio | 1.x | Industry standard for async Rust |
 | **Serialization** | Serde | 1.x | JSON request/response handling |
 | **Error Handling** | error_tools | 0.35.x | Workspace standard (rulebook requirement) |
-| **CLI Parsing** | clap | 4.x | Derive-based CLI argument parsing |
+| **Tokenization** | tokenizers | 0.15.x | HuggingFace tokenizers for DeBERTa |
 
 ### Development Tools
 

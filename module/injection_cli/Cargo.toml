@@ -1,0 +1,48 @@
+[package]
+name = "injection_cli"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "CLI interface for prompt injection detection using unilang"
+repository = "https://github.com/your-org/prompt_injection_detector"
+keywords = ["security", "prompt-injection", "cli", "detection"]
+categories = ["command-line-utilities"]
+
+[lints]
+workspace = true
+
+[[bin]]
+name = "injection_cli"
+path = "src/main.rs"
+
+[features]
+default = ["enabled", "backend-ort"]
+enabled = []
+backend-ort = ["injection_core/backend-ort"]
+backend-burn = ["injection_core/backend-burn"]
+full = [
+  "enabled",
+  "backend-ort",
+  "dep:unilang",
+  "dep:error_tools",
+]
+
+[dependencies]
+# Core library (use path to control default-features)
+injection_core = { path = "../injection_core", default-features = false }
+
+# CLI Framework
+unilang = { workspace = true, optional = true }
+
+# Error Handling
+error_tools = { workspace = true, optional = true }
+anyhow = { workspace = true }
+
+# Interactive mode
+rustyline = "14.0"
+
+# Output formatting
+colored = "2.1"
+serde_json = { workspace = true }

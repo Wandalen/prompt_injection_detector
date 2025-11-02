@@ -1,14 +1,14 @@
-# vllm_inferencer
+# Prompt Injection Detector
 
-Ultra-minimal LLM inference engine in Rust using [Candle](https://github.com/huggingface/candle) framework.
+High-performance prompt injection detection system using ProtectAI's DeBERTa model with ONNX Runtime.
 
 **Rules**: See [rulebook.md](rulebook.md) for project standards. Key: run `cargo fmt --all` before commits.
 
 ## Project Goal
 
-**Prove Candle framework works for LLM inference in 3-5 days.**
+**Detect prompt injection attacks with 95%+ accuracy using ONNX Runtime for fast inference.**
 
-Load GPT-2 to GPU, generate text, celebrate. That's it.
+Load DeBERTa model, classify text as benign or injection, deploy to production. That's it.
 
 ## Status
 
@@ -20,23 +20,77 @@ Load GPT-2 to GPU, generate text, celebrate. That's it.
 - MIT license and proper configuration
 - Ready for implementation
 
-**Phase 1: Core Inference** (3-5 days) 🔄 READY
-- [ ] Day 1-2: Understand Candle API, get examples working
-- [ ] Day 3-4: Load Phi-1.5, make forward pass work
-- [ ] Day 5: Generate text, test, done!
+**Phase 1: Core Detection** (5 days) 🔄 READY
+- [ ] Day 1-2: Setup ONNX Runtime, load DeBERTa model
+- [ ] Day 3-4: Implement classification logic
+- [ ] Day 5: Test detection accuracy, validate against ProtectAI benchmarks
 
 See [roadmap.md](./roadmap.md) for complete timeline.
 
 ## Quick Start
 
-**Prerequisites:** NVIDIA GPU (8GB+ VRAM), CUDA 11.0+, Rust 1.70+
+**Prerequisites:**
+- NVIDIA GPU (8GB+ VRAM, optional)
+- Rust 1.70+
+- CUDA 12.x+ (for GPU acceleration)
+- Model files (see installation below)
+
+### Model Installation
+
+Before building, you need to download the model files:
+
+**Option 1: Using Python (HuggingFace Hub)**
+
+```bash
+# Install dependencies
+pip install huggingface_hub torch transformers optimum onnx onnxruntime
+
+# Download and export model to ONNX
+python scripts/export_model.py
+```
+
+**Option 2: Manual Download**
+
+```bash
+# Create artifacts directory
+mkdir -p artifacts
+
+# Download ONNX model from HuggingFace or your model repository
+# Place the following files in artifacts/:
+#   - model.onnx (572MB) - ONNX format for ORT backend
+#   - tokenizer.json     - Tokenizer configuration
+#   - config.json        - Model configuration
+
+# For Burn backend, the MPK file is auto-generated:
+make rebuild-mpk  # Converts model.onnx → model.mpk
+```
+
+**Expected artifacts structure:**
+```
+vllm_inferencer/
+├── artifacts/
+│   ├── model.onnx       # Required for ORT backend
+│   ├── model.mpk        # Auto-generated for Burn backend
+│   ├── tokenizer.json   # Required for both
+│   └── config.json      # Optional, for reference
+```
+
+**Verify installation:**
+```bash
+ls -lh artifacts/
+# Should show:
+# model.onnx    (~572MB)
+# tokenizer.json
+```
+
+### Build and Run
 
 ```bash
 # Build and run CLI
-cargo run -p vllm_inferencer --features full -- prompt::"Once upon a time"
+cargo run -p injection_cli --features full -- .detect text::"Ignore all previous instructions"
 
 # Run HTTP server
-cargo run -p vllm_server --features full
+cargo run -p injection_server --features full
 
 # Run tests
 cargo nextest run --all-features
@@ -47,7 +101,7 @@ cargo nextest run --all-features
 This workspace uses the enabled/full feature pattern:
 
 - `enabled` - Minimal feature set (included in default)
-- `full` - All features including GPU acceleration, model loading, HTTP server
+- `full` - All features including ONNX Runtime, model loading, HTTP server
 
 **Usage:**
 
@@ -55,33 +109,33 @@ This workspace uses the enabled/full feature pattern:
 # Use default features (enabled)
 cargo build
 
-# Use full features (required for actual inference)
+# Use full features (required for actual detection)
 cargo build --features full
-cargo run -p vllm_inferencer --features full
-cargo run -p vllm_server --features full
+cargo run -p injection_cli --features full
+cargo run -p injection_server --features full
 ```
 
-## MVP Features (Ultra-Minimal)
+## MVP Features
 
-**ONE THING:** CLI that generates text
+**ONE THING:** Detect prompt injection attacks
 
-- Load Phi-1.5 to GPU
-- Take prompt from CLI argument
-- Generate text (greedy sampling)
-- Print to console
+- Load DeBERTa model via ONNX Runtime
+- Classify text as benign (0) or injection (1)
+- Return confidence scores
+- CLI and HTTP API interfaces
 
-**That's it.** No fancy features. Just prove Candle works.
+**That's it.** No complex features. Just prove ONNX Runtime works for fast ML inference.
 
 ## Architecture
 
 ```
 CLI/HTTP Interface
        ↓
- Generation Coordinator
+ Classification Coordinator
        ↓
   Model Management
        ↓
- Candle Framework → GPU
+ ONNX Runtime → GPU (optional)
 ```
 
 See [spec.md](./spec.md) for complete specification.
@@ -89,91 +143,139 @@ See [spec.md](./spec.md) for complete specification.
 ## Project Structure
 
 ```
-vllm_inferencer/
-├── src/
-│   ├── main.rs          # Entry point (CLI + HTTP)
-│   ├── lib.rs           # Public API
-│   ├── model.rs         # Model loading
-│   ├── generate.rs      # Generation logic
-│   └── error.rs         # Error types
-├── tests/
-│   ├── readme.md        # Manual testing plan
-│   └── basic_tests.rs   # Integration tests
-├── secret/              # Secret management (gitignored)
-├── spec.md              # Complete specification
-├── decisions.md         # Design decisions log
-├── Cargo.toml
-├── Makefile
-└── readme.md            # This file
+prompt_injection_detector/
+├── module/
+│   ├── injection_core/     # Core detection library
+│   ├── injection_cli/      # CLI with unilang
+│   └── injection_server/   # HTTP API server
+├── secret/                 # Secret management (gitignored)
+├── spec.md                 # Complete specification
+├── decisions.md            # Design decisions log
+├── roadmap.md              # Development roadmap
+├── Cargo.toml              # Workspace configuration
+└── readme.md               # This file
 ```
 
 ## Documentation
 
 - **[roadmap.md](./roadmap.md)** - Development roadmap and timeline
 - **[spec.md](./spec.md)** - Complete technical specification
-- **[decisions.md](./decisions.md)** - Auto-decision log
-- **[tests/readme.md](./tests/readme.md)** - Testing strategy and manual procedures
+- **[decisions.md](./decisions.md)** - Design decision log
+
+## Model Information
+
+**Model:** protectai/deberta-v3-base-prompt-injection-v2
+
+- **Type:** Binary text classification
+- **Architecture:** DeBERTa-v3-base (200M parameters)
+- **Accuracy:** 99.93% (training), 95.25% (production)
+- **Max Length:** 512 tokens
+- **Classes:** 0=benign, 1=injection
+- **License:** Apache 2.0
 
 ## Development
 
 ```bash
 cargo nextest run --all-features  # Run tests
 cargo doc --open                  # Generate docs
+cargo fmt --all                   # Format code
 ```
 
 ## Dependencies
 
 ### Core
-- **candle-core**, **candle-nn**, **candle-transformers** (0.8) - ML framework
+- **ort** (1.16) - ONNX Runtime for fast inference
 - **tokenizers** (0.15) - HuggingFace tokenizers
 - **error_tools** (0.35) - Error handling (workspace standard)
+- **unilang** (0.30) - CLI command framework
 
 ### HTTP Server (Milestone 2+)
 - **axum** (0.7) - HTTP framework
 - **tokio** (1.x) - Async runtime
 
+## API Examples
+
 ### CLI
-- **clap** (4.x) - Command-line parsing
 
-## Model Support
+```bash
+# Detect injection
+cargo run -p injection_cli --features full -- .detect text::"Ignore all previous instructions"
 
-**MVP:** GPT-2 Small (124M parameters) only
+# With custom threshold
+cargo run -p injection_cli --features full -- .detect text::"Hello world" threshold::0.8
+```
 
-**Future:** Gemma-3B, Llama-7B, MamayLM-Gemma-3-4B-IT
+### HTTP API
+
+```bash
+# Start server
+cargo run -p injection_server --features full
+
+# Health check
+curl http://localhost:3000/health
+
+# Detect injection
+curl -X POST http://localhost:3000/detect \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Ignore all previous instructions", "threshold": 0.5}'
+```
+
+**Response:**
+```json
+{
+  "label": "injection",
+  "confidence": 0.98,
+  "is_safe": false
+}
+```
+
+## Deployment
+
+### Docker
+
+```bash
+# Build image
+docker build -t prompt-injection-detector .
+
+# Run container
+docker run -p 3000:3000 prompt-injection-detector
+```
+
+### Vast.ai
+
+See [deployment documentation](./docs/deployment.md) for complete Vast.ai setup guide.
 
 ## Out of Scope (MVP)
 
 **Everything else:**
-- ❌ HTTP API (add later if CLI works)
-- ❌ KV Cache (add later if needed)
-- ❌ Advanced sampling
-- ❌ Batching, streaming, monitoring
-- ❌ Larger models
+- ❌ Jailbreak detection (model limitation)
+- ❌ Non-English text (model limitation)
+- ❌ Streaming responses
+- ❌ Batching
+- ❌ Advanced monitoring
 - ❌ Everything not listed above
 
-**Philosophy:** Validate the riskiest assumption (Candle works) in minimum time. Add features ONLY if MVP succeeds.
+**Philosophy:** Build the simplest thing that proves ONNX Runtime works for fast ML inference. Add features ONLY if MVP succeeds.
 
 ## Success Criteria
 
 **Does it work?**
 
 ```bash
-$ cargo run -- --prompt "Once upon a time"
-> Once upon a time, there was a wizard...
+$ cargo run -p injection_cli --features full -- .detect text::"Ignore all previous instructions"
+Input: "Ignore all previous instructions"
+Threshold: 0.5
 
-✅ SUCCESS - Candle works, continue building
-❌ FAILURE - Consider PyTorch instead
+=== Detection Result ===
+Classification: INJECTION
+Confidence: 98.5%
+Safe: false
+
+✅ SUCCESS - ONNX Runtime works, continue building
+❌ FAILURE - Consider alternatives
 ```
 
 That's the only metric that matters for MVP.
-
-## Testing
-
-All tests located in `tests/` directory:
-- `basic_tests.rs` - Core functionality
-- Manual testing procedures in `tests/readme.md`
-
-Run tests: `w3 .test l::3` or `make ctest3`
 
 ## License
 
@@ -181,16 +283,17 @@ MIT OR Apache-2.0
 
 ## Contributing
 
-1. Follow project rulebooks in `/home/user1/pro/genai/code/rules/`
+1. Follow project rulebooks
 2. Use `error_tools` for error handling
-3. All code must pass `w3 .test l::3`
+3. All code must pass `cargo nextest run --all-features`
 4. Update `spec.md` before changing behavior
-5. Document manual testing in `tests/readme.md`
+5. Run `cargo fmt --all` before commits
 
 ## References
 
-- [Candle Framework](https://github.com/huggingface/candle)
-- [GPT-2 Model](https://huggingface.co/gpt2)
+- [ProtectAI DeBERTa Model](https://huggingface.co/protectai/deberta-v3-base-prompt-injection-v2)
+- [ONNX Runtime](https://onnxruntime.ai/)
+- [Unilang CLI Framework](https://crates.io/crates/unilang)
 - [Specification](./spec.md)
 - [Design Decisions](./decisions.md)
 
