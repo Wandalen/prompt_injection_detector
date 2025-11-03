@@ -30,8 +30,8 @@ impl Detector {
             return Err(anyhow::anyhow!("Could not find artifacts directory"));
         };
 
-        let model_path = format!("{artifact_dir}/model.onnx");
-        let tokenizer_path = format!("{artifact_dir}/tokenizer/tokenizer.json");
+        let model_path = format!("{}/model.onnx", artifact_dir);
+        let tokenizer_path = format!("{}/tokenizer.json", artifact_dir);
 
         // Load model with CUDA support
         let session = Session::builder()

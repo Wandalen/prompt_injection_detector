@@ -33,7 +33,7 @@ impl Default for TransformerConfig {
 
 impl TransformerConfig {
     fn default_weights() -> String {
-        "model".to_string()
+        "model.mpk".to_string()
     }
 
     pub fn resolve_path<P: AsRef<Path>>(&self, artifact_dir: P) -> PathBuf {
@@ -62,7 +62,7 @@ impl Default for TokenizerConfig {
 
 impl TokenizerConfig {
     fn default_dir() -> String {
-        "tokenizer".to_string()
+        ".".to_string()
     }
 
     fn default_repo() -> Option<String> {
