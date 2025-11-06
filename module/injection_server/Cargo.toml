@@ -1,20 +1,20 @@
 [package]
-name = "vllm_server"
+name = "injection_server"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 authors.workspace = true
 license.workspace = true
-description = "HTTP API server for vLLM inference engine"
-repository = "https://github.com/your-org/vllm_inferencer"
-keywords = ["llm", "inference", "http", "api", "server"]
+description = "HTTP API server for prompt injection detection"
+repository = "https://github.com/your-org/prompt_injection_detector"
+keywords = ["security", "prompt-injection", "http", "api", "server"]
 categories = ["web-programming::http-server"]
 
 [lints]
 workspace = true
 
 [[bin]]
-name = "vllm_server"
+name = "injection_server"
 path = "src/main.rs"
 
 [features]
@@ -22,7 +22,7 @@ default = ["enabled"]
 enabled = []
 full = [
   "enabled",
-  "vllm_core/full",
+  "injection_core/full",
   "dep:axum",
   "dep:tokio",
   "dep:tower",
@@ -36,7 +36,7 @@ full = [
 
 [dependencies]
 # Core library
-vllm_core = { workspace = true, optional = true }
+injection_core = { workspace = true, optional = true }
 
 # HTTP Server
 axum = { workspace = true, optional = true }

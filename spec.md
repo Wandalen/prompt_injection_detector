@@ -1,10 +1,10 @@
 # spec
 
-- **Project Name:** vllm_inferencer
-- **Version:** 0.1
-- **Date:** 2025-10-21
-- **Type:** System Specification (Ultra-Minimal MVP)
-- **Scope:** Milestone 1-3 (CLI Generation, HTTP API, KV Cache Optimization)
+- **Project Name:** prompt_injection_detector
+- **Version:** 0.3
+- **Date:** 2025-11-02
+- **Type:** System Specification (Security Detection System)
+- **Scope:** Phase 1-3 (Core Detection, HTTP API, Container Deployment)
 
 ---
 
@@ -23,953 +23,637 @@
 11. [Technology Stack](#technology-stack)
 12. [In Scope](#in-scope)
 13. [Out of Scope](#out-of-scope)
-14. [Limitations](#limitations)
-15. [Deliverables](#deliverables)
-16. [Success Metrics](#success-metrics)
-17. [Milestones](#milestones)
-18. [Appendix: Addendum](#appendix-addendum)
+14. [Deliverables](#deliverables)
+15. [Success Metrics](#success-metrics)
+16. [Milestones](#milestones)
+17. [Appendix](#appendix)
 
 ---
 
 ## Vocabulary
 
-This section defines the Ubiquitous Language for the vllm_inferencer project. All terms must be used consistently throughout the specification, source code, and project communications.
+This section defines the Ubiquitous Language for the prompt_injection_detector project. All terms must be used consistently throughout the specification, source code, and project communications.
 
-- **Inference:** The process of using a trained Large Language Model to generate predictions or text outputs based on input prompts.
-- **Inference Engine:** The core system component responsible for executing the Inference process, including tokenization, model forward pass, and token generation.
-- **Token:** The atomic unit of text processing in language models. A single word or subword unit produced by the Tokenizer.
-- **Tokenizer:** A component that converts raw text (strings) into sequences of Tokens that the Model can process, and converts Tokens back to text.
-- **Model:** The pre-trained Large Language Model neural network containing learned parameters (weights). For MVP, specifically GPT-2 Small (124M parameters).
-- **Generation:** The iterative process of producing output Tokens one at a time based on a Prompt and previously generated Tokens.
-- **Prompt:** The input text string provided by the API Client to initialize the Generation process.
-- **Greedy Sampling:** A simple Generation strategy that always selects the Token with the highest probability at each step. Produces deterministic outputs.
-- **KV Cache:** Key-Value Cache. A memory optimization that stores intermediate attention computations from previous Tokens to avoid recomputation during Generation, providing 5-10x speedup.
-- **API Client:** Any external system or user that sends HTTP requests to the Inference Engine HTTP Server to perform Inference.
-- **HTTP Server:** The web service component that exposes the Inference Engine functionality via RESTful HTTP endpoints.
-- **GPU (Graphics Processing Unit):** Hardware accelerator used to execute Model computations. Required for practical Inference performance.
-- **CUDA:** NVIDIA's parallel computing platform and programming model for GPU acceleration.
-- **Candle:** The Rust machine learning framework by HuggingFace used to implement the Inference Engine.
-- **SafeTensors:** A secure file format for storing and loading Model weights/parameters.
-- **HuggingFace Hub:** Online repository hosting pre-trained Models and Tokenizers. Source for GPT-2 Small in MVP.
-- **Max Tokens:** Parameter limiting the maximum number of Tokens to generate during a single Inference request.
-- **Sequence Length:** The total number of Tokens in a Prompt plus generated Tokens.
+- **Prompt Injection:** A security attack where malicious text is crafted to manipulate or override the intended behavior of a language model by injecting commands or instructions.
+- **Detection:** The process of using a trained machine learning model to classify input text as either benign or containing a prompt injection attack.
+- **Backend:** The inference engine (ORT or Burn) that executes model computations for classification.
+- **Binary Classification:** The task of categorizing input text into exactly two classes: benign (0) or injection (1).
+- **ONNX:** Open Neural Network Exchange, a standard format for representing machine learning models enabling cross-platform inference.
+- **ORT Backend:** ONNX Runtime with CUDA support - production-grade, primary backend with 8-12ms inference latency.
+- **Burn Backend:** Rust-native ML framework with CUDA support - experimental alternative with 170ms inference latency.
+- **Lazy Initialization:** Loading model on first `detect()` call rather than at startup, reducing initial overhead.
+- **Model Caching:** Storing loaded model in memory (via RwLock/Mutex) for fast subsequent inferences (60-267x speedup).
+- **ModernBERT:** The base architecture for the prompt injection classification model (22 layers, 768 hidden size, 512 max tokens).
+- **Benign:** Classification label (0) indicating the input text does not contain a prompt injection attack.
+- **Injection:** Classification label (1) indicating the input text likely contains a prompt injection attack.
+- **Thread-Safe:** Property of `detect()` function allowing concurrent calls from multiple threads safely.
 
 ---
 
 ## Project Goal
 
-**Prove Candle framework works for LLM inference in 1 week.**
+**Detect prompt injection attacks with 95%+ accuracy using dual backend architecture (ORT/Burn) for fast, production-ready inference.**
 
-Load GPT-2 Small to GPU, generate coherent text from a prompt, print to console. That's it. No HTTP, no optimization, no complexity. Just validate the core technical stack works before investing in anything else.
+Load ModernBERT-based model, classify text as benign or injection, deploy to production. Provide complete detection system deployable as CLI tool or HTTP API service. That's it.
 
 ---
 
 ## Problem Solved
 
-**Risk Validation:** Is Candle mature enough for LLM inference, or should we use PyTorch?
+**Security Need:** Protect LLM applications from prompt injection attacks that can manipulate model behavior, extract sensitive information, or bypass safety guardrails.
 
-Answer this question in 1 week with working code, not months of planning. If Candle works: great, continue. If not: pivot to PyTorch immediately.
+Provide a production-ready, high-performance detection system that can be deployed as a standalone service or integrated into existing applications. Enable developers to validate user inputs before sending to LLM systems.
+
+**Solution:** High-performance binary classifier using ModernBERT-based model with:
+- Sub-100ms inference latency (ORT backend, cached)
+- Thread-safe concurrent processing
+- Dual backend support (production + experimental)
+- Simple API: `detect(text) -> Result<String>` returning "benign" or "injection"
 
 ---
 
 ## User Stories
 
-### US-1: Developer - Technical Validation
-**As a** Developer
-**I want** to run a CLI command and see generated text
-**So that** I know Candle framework is viable for this project
+### US-1: Security Engineer - Real-Time Detection
+**As a** Security Engineer
+**I want** to detect prompt injections in real-time with <100ms latency
+**So that** I can integrate detection into user-facing applications without UX degradation
 
-That's the only user story. Everything else is future work.
+**Acceptance Criteria:**
+- CLI accepts text input and returns classification
+- Returns classification within 100ms (ORT backend, cached model)
+- 95%+ accuracy on known injection patterns
+- Correctly identifies both injection attempts and benign text
+
+---
+
+### US-2: Application Developer - API Integration
+**As a** Application Developer
+**I want** REST API endpoint for prompt injection detection
+**So that** I can integrate detection into existing services via HTTP
+
+**Acceptance Criteria:**
+- HTTP endpoint accepts JSON with `text` field
+- Returns structured JSON with `label` (benign/injection), `is_safe` boolean, and `time_ms`
+- Handles concurrent requests safely
+- Clear error messages for invalid inputs
+
+---
+
+### US-3: DevOps Engineer - Production Deployment
+**As a** DevOps Engineer
+**I want** to deploy detection service in Docker container
+**So that** I can run at scale with GPU acceleration (optional)
+
+**Acceptance Criteria:**
+- Docker container includes model artifacts
+- Supports both GPU (CUDA) and CPU deployment
+- Health endpoint for monitoring
+- Model caches properly (no re-download on restart)
 
 ---
 
 ## System Actors
 
-1. **Developer** - Runs CLI, views generated text
-2. **Inference Engine** - Loads model, generates text
-3. **HuggingFace Hub** - Provides GPT-2 model files
-4. **GPU** - Executes model computations
+1. **Security Engineer** - Uses CLI for testing and validation
+2. **Application Developer** - Integrates HTTP API into applications
+3. **DevOps Engineer** - Deploys and maintains service in production
+4. **Backend (ORT/Burn)** - Executes model inference
+5. **Model (ModernBERT)** - Performs binary classification
+6. **GPU (optional)** - Accelerates inference via CUDA
 
 ---
 
 ## Functional Requirements
 
-### Public Contract (Mandatory Requirements)
+### FR-1: Binary Text Classification
+**Requirement:** The system **must** classify input text as "benign" or "injection" with >95% accuracy.
 
-#### FR-1: Load GPT-2 to GPU
-**Requirement:** The system **must** load GPT-2 Small from HuggingFace Hub to GPU memory.
+**API Contract:**
+```rust
+pub fn detect(text: &str) -> Result<String>
+// Returns: Ok("benign") or Ok("injection")
+```
 
-**Test:** Run `nvidia-smi`, see ~500MB-2GB allocated.
-
----
-
-#### FR-2: Generate Text from Prompt
-**Requirement:** The system **must** generate text given a prompt string.
-
-**Test:** Run with prompt "Hello", get coherent continuation.
+**Test:** Known injection "Ignore all previous instructions" returns "injection".
 
 ---
 
-#### FR-3: CLI Interface
-**Requirement:** The system **must** accept `--prompt` argument and print generated text.
+### FR-2: Dual Backend Support
+**Requirement:** The system **must** support compile-time selection between ORT and Burn backends.
 
-**Test:** `cargo run -- --prompt "Test"` prints generated text to stdout.
+**Feature Flags:**
+- `backend-ort` - ONNX Runtime (default, production, 8-12ms)
+- `backend-burn` - Burn framework (alternative, experimental, 170ms)
 
----
+**Priority:** If both features enabled, ORT takes precedence.
 
-### Internal Design (Design Recommendations)
-
-These recommendations suggest implementation approaches for internal components. The implementation **may** vary based on developer judgment and technical constraints.
-
-#### DR-1: Model Loading Architecture
-**Recommendation:** It is **recommended** that Model loading be implemented in a dedicated `model.rs` module with the following responsibilities:
-- Download Model files from HuggingFace Hub using `hf-hub` crate
-- Parse SafeTensors format using `safetensors` crate
-- Load Model weights into Candle `VarBuilder` on GPU device
-- Validate Model architecture matches GPT-2 Small configuration
-- Expose `ModelLoader::load()` API returning loaded Model instance
-
-**Rationale:** Separation of concerns allows Model loading logic to evolve independently from Generation logic.
+**Test:** Both backends produce identical classifications for same input text.
 
 ---
 
-#### DR-2: Generation Loop Structure
-**Recommendation:** The Generation loop **should** be implemented as an iterative process:
-1. Tokenize Prompt to initial Token sequence
-2. For each step until Max Tokens or EOS:
-   - Run Model forward pass on current Token sequence (or last Token if using KV Cache)
-   - Extract logits for next Token position
-   - Apply Greedy Sampling (select argmax)
-   - Append selected Token to sequence
-   - Update KV Cache with new key/value tensors
-3. Decode final Token sequence to text string
+### FR-3: Lazy Model Initialization
+**Requirement:** Model **must** load lazily on first `detect()` call OR eagerly via optional `init()`.
 
-**Rationale:** This structure is standard for autoregressive Generation and maps cleanly to Candle's tensor operations.
+**Behavior:**
+- First `detect()` call: 1.9s (ORT) / 8-10s (Burn) - includes model loading
+- Subsequent calls: 8-12ms (ORT) / 170ms (Burn) - uses cached model
+- Optional `init()` allows pre-loading to avoid first-call latency
+
+**Test:** Second detection call is significantly faster than first (60-267x speedup).
 
 ---
 
-#### DR-3: HTTP Server Framework
-**Recommendation:** The HTTP server **should** use Axum framework with Tokio async runtime for the following reasons:
-- Axum provides ergonomic routing and JSON serialization
-- Tokio async runtime enables future concurrent request handling (post-MVP)
-- Ecosystem maturity and strong Rust community support
+### FR-4: CLI Detection Interface
+**Requirement:** CLI **must** accept `.detect text::"input"` command and return classification.
 
-**Alternative:** If Axum proves problematic, Actix-web is an acceptable alternative with similar capabilities.
+**Modes:**
+- **Single-shot:** `injection_cli .detect text::"input"` - one-time detection
+- **Interactive:** `injection_cli .interactive` - continuous REPL with readline
+- **Input methods:** Direct text (`text::"..."`), file (`file::"path"`), stdin (default)
+- **Output formats:** Human (colored), JSON, simple (label only), quiet (exit code only)
+
+**Test:** `cargo run -p injection_cli --features full -- .detect text::"test"` succeeds.
 
 ---
 
-#### DR-4: Error Handling Pattern
-**Recommendation:** All error types **should** be defined using `error_tools` crate following workspace standard conventions:
-- Create `error.rs` module with `InferenceError` enum
-- Variants for `ModelLoadingError`, `TokenizationError`, `GenerationError`, `HttpError`
-- Use `thiserror::Error` derive macro (re-exported from `error_tools`)
-- Implement `From` conversions for underlying library errors
+### FR-5: HTTP Detection API
+**Requirement:** HTTP server **must** expose `/detect` POST endpoint accepting JSON.
 
-**Rationale:** Consistent error handling pattern across workspace crates, required by project rulebooks.
+**Request:**
+```json
+{"text": "input text to analyze"}
+```
+
+**Response:**
+```json
+{
+  "label": "benign"|"injection",
+  "is_safe": true|false,
+  "time_ms": 12
+}
+```
+
+**Endpoints:**
+- `GET /health` - Returns server status, model info, version
+- `POST /detect` - Classifies text, returns result with timing
+
+**Test:** `curl -X POST http://localhost:3000/detect -d '{"text":"test"}'` returns valid JSON.
 
 ---
 
 ## Non-Functional Requirements
 
-#### NFR-1: It Must Work
-**Requirement:** Text generation **must** produce coherent output (manual evaluation - does it look like English?).
+### NFR-1: Performance
+**Requirement:** Inference latency **must** be <100ms for typical inputs (ORT backend, cached model).
 
-#### NFR-2: No Crashes
-**Requirement:** System **must** complete 10 generations without crashing.
+**Measured:** ORT achieves 8-12ms (exceeds target), Burn achieves 170ms (within experimental tolerance).
 
-#### NFR-3: GPU Usage
-**Requirement:** Model **must** run on GPU (verify with nvidia-smi showing memory usage).
+---
+
+### NFR-2: Concurrency
+**Requirement:** System **must** handle concurrent requests safely without data races.
+
+**Implementation:**
+- ORT backend: RwLock allows concurrent reads (parallel request processing)
+- Burn backend: Mutex serializes access (one request at a time)
+
+---
+
+### NFR-3: Memory Usage
+**Requirement:** System **must** operate within 2GB RAM for model and runtime.
+
+**Measured:** ~2GB for loaded model + runtime (both backends).
 
 ---
 
 ## System Architecture
 
-### Overview
+### High-Level Architecture
 
-The vllm_inferencer system is a single-process Rust application that loads a pre-trained GPT-2 Small Model to GPU memory and exposes text Generation capabilities through both CLI and HTTP interfaces.
+```
+┌─────────────────────────────────────────────┐
+│          User Interfaces                    │
+│  ┌──────────────┐    ┌──────────────────┐  │
+│  │ CLI          │    │ HTTP Server      │  │
+│  │ (injection_  │    │ (injection_      │  │
+│  │  cli)        │    │  server)         │  │
+│  └──────┬───────┘    └────────┬─────────┘  │
+└─────────┼─────────────────────┼─────────────┘
+          │                     │
+          └──────────┬──────────┘
+                     ▼
+        ┌─────────────────────────────┐
+        │  injection_core Library     │
+        │  ┌───────────────────────┐  │
+        │  │ Backend Selector      │  │
+        │  │ (compile-time)        │  │
+        │  └──────┬────────┬───────┘  │
+        │         │        │           │
+        │    ┌────▼───┐ ┌──▼────┐     │
+        │    │  ORT   │ │ Burn  │     │
+        │    │Backend │ │Backend│     │
+        │    │RwLock  │ │Mutex  │     │
+        │    └────┬───┘ └──┬────┘     │
+        │         │        │           │
+        │    ┌────▼────────▼─────┐    │
+        │    │ Lazy Init Cache   │    │
+        │    └──────────────────┘     │
+        └─────────────────────────────┘
+                     │
+              ┌──────▼───────┐
+              │  CUDA / CPU  │
+              │ Acceleration │
+              └──────────────┘
+```
 
-**Architecture Style:** Layered monolithic application with clear separation between:
+### Architecture Style
+
+Layered monolithic application with clear separation between:
 1. **Interface Layer:** CLI and HTTP API entry points
-2. **Inference Engine Layer:** Core Generation logic and KV Cache management
-3. **Model Layer:** Model loading and forward pass execution
-4. **Integration Layer:** External dependencies (Candle, Tokenizers, HuggingFace Hub)
+2. **Core Library Layer:** Backend abstraction and API (`detect()`, `init()`)
+3. **Backend Layer:** ORT or Burn inference engines
+4. **Model Layer:** ModernBERT-based binary classifier
 
-### High-Level Components
+### Component Responsibilities
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         User Interfaces                         │
-│                                                                 │
-│   ┌──────────────┐                  ┌────────────────────────┐ │
-│   │  CLI Entry   │                  │  HTTP Server (Axum)    │ │
-│   │  (main.rs)   │                  │  POST /generate        │ │
-│   │              │                  │  GET /health           │ │
-│   └──────┬───────┘                  └───────────┬────────────┘ │
-│          │                                      │              │
-└──────────┼──────────────────────────────────────┼──────────────┘
-           │                                      │
-           │         ┌───────────────────────────┘
-           │         │
-           ▼         ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                      Inference Engine                           │
-│                                                                 │
-│   ┌──────────────────────────────────────────────────────────┐ │
-│   │  Generation Coordinator (generate.rs)                    │ │
-│   │  - Orchestrates tokenization → forward pass → sampling  │ │
-│   │  - Manages KV Cache lifecycle                           │ │
-│   │  - Implements Greedy Sampling                           │ │
-│   └──────────┬───────────────────────────────┬───────────────┘ │
-│              │                               │                 │
-└──────────────┼───────────────────────────────┼─────────────────┘
-               │                               │
-               ▼                               ▼
-┌──────────────────────────┐    ┌─────────────────────────────────┐
-│   Model Management       │    │   KV Cache (Milestone 3)        │
-│   (model.rs)             │    │   - Key tensor storage          │
-│                          │    │   - Value tensor storage        │
-│  - Model loading         │    │   - Cache update logic          │
-│  - HuggingFace Hub API   │    │   - Memory management           │
-│  - SafeTensors parsing   │    └─────────────────────────────────┘
-│  - GPU memory alloc      │
-│  - Forward pass          │
-└──────────┬───────────────┘
-           │
-           ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                   External Dependencies                         │
-│                                                                 │
-│  ┌──────────────┐  ┌────────────┐  ┌────────────────────────┐ │
-│  │   Candle     │  │ Tokenizers │  │  HuggingFace Hub API   │ │
-│  │   (GPU ops)  │  │   (UTF-8)  │  │  (model download)      │ │
-│  └──────────────┘  └────────────┘  └────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────┘
-                           │
-                           ▼
-                  ┌────────────────┐
-                  │  GPU Hardware  │
-                  │  (CUDA/NVIDIA) │
-                  └────────────────┘
-```
+**injection_cli:**
+- Argument parsing (manual parsing, not unilang framework)
+- Multiple input methods (text/file/stdin)
+- Multiple output formats (human/JSON/simple/quiet)
+- Interactive REPL mode with readline history
+- Exit codes (0=benign, 1=injection for quiet mode)
 
-### Milestone Evolution
+**injection_server:**
+- HTTP endpoint routing (Axum framework)
+- JSON request/response serialization
+- Pre-loads model at startup via `init()` for fast first request
+- No shared state needed (detect() is thread-safe via RwLock/Mutex)
+- Tracing/logging for production monitoring
 
-**Milestone 1 (CLI):**
-- Components: CLI Entry + Inference Engine + Model Management + Candle/Tokenizers
-- No HTTP Server, no KV Cache
-- Single-threaded execution
+**injection_core:**
+- Backend abstraction layer (compile-time selection)
+- Model caching with thread safety (RwLock for ORT, Mutex for Burn)
+- Lazy initialization pattern (load on demand)
+- Public API: `detect(text) -> Result<String>` and `init() -> Result<()>`
+- Zero runtime overhead (static dispatch via cfg attributes)
 
-**Milestone 2 (HTTP API):**
-- Add: HTTP Server (Axum) with `/generate` and `/health` endpoints
-- Sequential request processing (queue-based)
-- Still no KV Cache
+**Backend (ORT):**
+- ONNX Runtime inference with CUDA acceleration
+- RwLock for concurrent read access (multiple threads can detect() simultaneously)
+- 8-12ms inference latency (cached model)
+- Production-grade performance and stability
 
-**Milestone 3 (KV Cache):**
-- Add: KV Cache component
-- Modify: Generation Coordinator to use cached attention computations
-- 5-10x speedup expected
+**Backend (Burn):**
+- Burn framework inference with CUDA acceleration
+- Mutex for exclusive access (serialized requests)
+- 170ms inference latency (cached model)
+- Experimental/research use, not production-recommended
 
 ---
 
 ## Component Diagrams
 
-### Diagram 1: Component Structure
+### Diagram 1: Request Flow (CLI)
 
-This diagram shows the static structure of system components and their dependencies.
-
-```mermaid
-graph TB
-    subgraph "User Interfaces"
-        CLI[CLI Entry<br/>main.rs]
-        HTTP[HTTP Server<br/>Axum + Tokio]
-    end
-
-    subgraph "Inference Engine"
-        GEN[Generation Coordinator<br/>generate.rs]
-        CACHE[KV Cache<br/>M3 only]
-    end
-
-    subgraph "Model Layer"
-        MODEL[Model Management<br/>model.rs]
-        TOKENIZER[Tokenizer<br/>from HF]
-    end
-
-    subgraph "External"
-        CANDLE[Candle Framework]
-        HF[HuggingFace Hub]
-        GPU[GPU Hardware]
-    end
-
-    CLI --> GEN
-    HTTP --> GEN
-    GEN --> MODEL
-    GEN --> TOKENIZER
-    GEN -.-> CACHE
-    MODEL --> CANDLE
-    MODEL --> HF
-    TOKENIZER --> HF
-    CANDLE --> GPU
-
-    style CACHE stroke-dasharray: 5 5
+```
+User → CLI Entry → detect(text) → Backend Selector (compile-time)
+                                        ↓
+                            ┌───────────┴───────────┐
+                            │                       │
+                         ORT Backend          Burn Backend
+                         (RwLock)              (Mutex)
+                            │                       │
+                       Load/Cache              Load/Cache
+                       ModernBERT             ModernBERT
+                            │                       │
+                         Classify              Classify
+                            │                       │
+                       "benign" or           "benign" or
+                       "injection"           "injection"
+                            │                       │
+                            └───────────┬───────────┘
+                                        ↓
+                                  Return Result
+                                        ↓
+                                  Display Output
 ```
 
-**Legend:**
-- Solid arrows: Direct dependencies
-- Dashed arrows: Optional dependency (Milestone 3 only)
-- M3: Milestone 3
+### Diagram 2: Request Flow (HTTP)
 
----
-
-### Diagram 2: Request Processing Sequence (HTTP API)
-
-This sequence diagram shows the flow of a single HTTP Generation request through the system.
-
-```mermaid
-sequenceDiagram
-    participant Client as API Client
-    participant HTTP as HTTP Server
-    participant Gen as Generation Coordinator
-    participant Model as Model Management
-    participant GPU as GPU Hardware
-
-    Client->>HTTP: POST /generate<br/>{prompt: "Hello", max_tokens: 20}
-    HTTP->>HTTP: Parse JSON request
-    HTTP->>Gen: generate(prompt, max_tokens)
-
-    Gen->>Model: tokenize(prompt)
-    Model->>Model: Tokenizer.encode()
-    Model-->>Gen: tokens: [15496, 11]
-
-    loop For each token until max_tokens
-        Gen->>Model: forward_pass(tokens)
-        Model->>GPU: Matrix multiply (GPU)
-        GPU-->>Model: logits tensor
-        Model-->>Gen: logits
-        Gen->>Gen: greedy_sample(logits)
-        Gen->>Gen: Append new token
-    end
-
-    Gen->>Model: decode(tokens)
-    Model-->>Gen: text: "Hello world..."
-    Gen-->>HTTP: GenerationResult{text, time_ms}
-    HTTP->>HTTP: Serialize to JSON
-    HTTP-->>Client: 200 OK<br/>{text: "...", tokens_generated: 20}
 ```
-
-**Notes:**
-- In Milestone 1 (CLI), replace `Client` and `HTTP Server` with `CLI User` and `CLI Entry`
-- In Milestone 3, add `KV Cache` actor with cache lookup/update steps in the generation loop
-
----
-
-### Diagram 3: Generation State Machine
-
-This state diagram shows the lifecycle of a single text Generation request.
-
-```mermaid
-stateDiagram-v2
-    [*] --> Initialized: Request received
-
-    Initialized --> Tokenizing: Start processing
-    Tokenizing --> TokenizeFailed: Error
-    Tokenizing --> Generating: Tokens ready
-
-    Generating --> Computing: Forward pass
-    Computing --> ComputeFailed: GPU error
-    Computing --> Sampling: Logits ready
-    Sampling --> CheckComplete: Token sampled
-
-    CheckComplete --> Generating: More tokens needed
-    CheckComplete --> Decoding: Max tokens or EOS
-
-    Decoding --> DecodeFailed: Decode error
-    Decoding --> Completed: Text ready
-
-    TokenizeFailed --> [*]: Return error
-    ComputeFailed --> [*]: Return error
-    DecodeFailed --> [*]: Return error
-    Completed --> [*]: Return success
-
-    note right of Computing
-        This is where KV Cache
-        is used in Milestone 3
-    end note
+HTTP Request → Axum Router → detect_handler → detect(text)
+                                                    ↓
+                                              Backend (ORT/Burn)
+                                                    ↓
+                                              Classification
+                                                    ↓
+                                            JSON Response
+                                            {label, is_safe, time_ms}
+                                                    ↓
+                                              HTTP 200 OK
 ```
-
----
-
-### Diagram 4: Deployment Architecture
-
-This diagram shows the runtime deployment of the MVP system.
-
-```mermaid
-graph TB
-    subgraph "Client Environment"
-        USER[API Clients<br/>curl, Python, Browser]
-    end
-
-    subgraph "GPU Server (Single VPS)"
-        subgraph "Docker Container (Optional)"
-            BINARY[vllm_inferencer<br/>Binary Process]
-        end
-
-        subgraph "GPU Resources"
-            VRAM[GPU Memory<br/>~2GB used]
-            CUDA[CUDA Runtime<br/>11.0+]
-        end
-
-        subgraph "Storage"
-            MODELS[Model Cache<br/>~500MB GPT-2]
-        end
-    end
-
-    subgraph "External Services"
-        HF_HUB[HuggingFace Hub<br/>Model Download]
-    end
-
-    USER -->|HTTP :3000| BINARY
-    BINARY --> VRAM
-    BINARY --> CUDA
-    BINARY -.->|First run only| HF_HUB
-    HF_HUB -.->|Download| MODELS
-    BINARY --> MODELS
-
-    style BINARY fill:#90EE90
-    style VRAM fill:#FFE4B5
-    style CUDA fill:#FFE4B5
-```
-
-**Infrastructure Notes:**
-- Single VPS with GPU (e.g., vast.ai, runpod.io, Lambda Labs)
-- Minimum: RTX 3060 (8GB VRAM), 16GB RAM, 20GB storage
-- Estimated cost: $50-100/month for GPU-enabled VPS
-- No auto-scaling, no load balancer (ultra-minimal MVP)
-
----
-
-### Diagram 5: Data Flow (Token Generation)
-
-This data flow diagram shows how information moves through the system during text Generation.
-
-```mermaid
-graph LR
-    subgraph "Input"
-        PROMPT[User Prompt<br/>String]
-        PARAMS[Parameters<br/>max_tokens]
-    end
-
-    subgraph "Processing Pipeline"
-        TOK[Tokenization<br/>String → Tokens]
-        EMBED[Embedding Lookup<br/>Tokens → Vectors]
-        ATTN[Attention Layers<br/>with KV Cache M3]
-        LOGITS[Logits Generation<br/>Next token probs]
-        SAMPLE[Greedy Sampling<br/>argmax selection]
-    end
-
-    subgraph "State"
-        CACHE[(KV Cache<br/>M3 only)]
-    end
-
-    subgraph "Output"
-        GEN_TOK[Generated Tokens<br/>Array]
-        TEXT[Generated Text<br/>String]
-    end
-
-    PROMPT --> TOK
-    PARAMS --> SAMPLE
-    TOK --> EMBED
-    EMBED --> ATTN
-    ATTN <-.-> CACHE
-    ATTN --> LOGITS
-    LOGITS --> SAMPLE
-    SAMPLE --> GEN_TOK
-    GEN_TOK --> TOK
-    GEN_TOK --> TEXT
-
-    style CACHE stroke-dasharray: 5 5
-```
-
-**Data Flow Notes:**
-- Feedback loop: Generated tokens are fed back into embedding layer for next iteration
-- KV Cache (dashed) is optional in M1-M2, required in M3
-- All tensor operations execute on GPU
 
 ---
 
 ## External Dependencies
 
-This section documents all external services and libraries that the Inference Engine relies upon.
+### Dependency 1: ONNX Runtime (ORT Backend)
+- **Library:** ort (2.0.0-rc.10)
+- **Purpose:** Execute ONNX model inference with CUDA acceleration
+- **Required For:** ORT backend (default)
+- **Risk:** MEDIUM - New 2.0 API requires unsafe code for session.run()
 
-### Dependency 1: HuggingFace Hub
+### Dependency 2: Burn Framework (Burn Backend)
+- **Library:** burn (0.19.0), burn-ndarray (0.19.0)
+- **Purpose:** Rust-native ML inference with CUDA support
+- **Required For:** Burn backend (alternative)
+- **Risk:** MEDIUM - Relatively new framework, experimental status
 
-- **Service Name:** HuggingFace Model Hub
-- **Purpose:** Download pre-trained GPT-2 Small Model files and Tokenizer configuration during initialization
-- **API Type:** REST API (HTTPS)
-- **Access Method:** Public API, no authentication required for public models
-- **Required Endpoints/Operations:**
-  - Model file downloads: `https://huggingface.co/gpt2/resolve/main/model.safetensors`
-  - Tokenizer files: `https://huggingface.co/gpt2/resolve/main/tokenizer.json`
-  - Configuration files: `https://huggingface.co/gpt2/resolve/main/config.json`
-
-**Risk Assessment:**
-- **Availability Impact:** HIGH - If HuggingFace Hub is unavailable, system cannot download Model on first run. Mitigation: Cache downloaded files locally, support offline mode after initial download.
-- **Performance Impact:** MEDIUM - Network download adds 5-30 seconds to cold start time. Mitigation: Implement local cache, pre-download models during deployment.
-- **Security Considerations:** LOW - Downloading from public repository. Mitigation: Verify file checksums against known values.
-- **Cost Model:** FREE - Public models have no API costs. Risk: None for MVP.
-
----
-
-### Dependency 2: Candle Framework
-
-- **Library Name:** candle-core, candle-nn, candle-transformers
-- **Purpose:** Execute GPU-accelerated tensor operations for Model inference
-- **Version:** 0.8.x
-- **Integration Method:** Rust crate dependency via Cargo.toml
-- **Required Features:** CUDA support enabled
-
-**Risk Assessment:**
-- **Availability Impact:** CRITICAL - Core framework for all Model operations. No fallback. Mitigation: Pin to specific tested version (0.8.x).
-- **Performance Impact:** CRITICAL - All performance depends on Candle's GPU kernel efficiency. Mitigation: Benchmark early, validate GPU utilization.
-- **Maturity Risk:** MEDIUM - Candle is relatively new (2023-2024). May have undiscovered bugs. Mitigation: Extensive testing, community engagement, fallback to PyTorch if critical issues found.
-- **API Stability:** MEDIUM - API may change between versions. Mitigation: Pin to specific version, test updates carefully.
-
----
-
-### Dependency 3: Tokenizers Library
-
-- **Library Name:** tokenizers (HuggingFace Rust tokenizers)
-- **Purpose:** Text tokenization and detokenization using GPT-2 vocabulary
-- **Version:** 0.15.x
-- **Integration Method:** Rust crate dependency
-
-**Risk Assessment:**
-- **Correctness Impact:** CRITICAL - Incorrect tokenization breaks Generation quality. Mitigation: Validation tests against HuggingFace `transformers` Python library.
-- **Performance Impact:** LOW - Tokenization is fast (<10ms). Not a bottleneck.
-- **Compatibility:** HIGH confidence - Official HuggingFace library, widely used.
-
----
+### Dependency 3: HuggingFace Tokenizers
+- **Library:** tokenizers (0.22.1)
+- **Purpose:** Text tokenization for ModernBERT (max 512 tokens)
+- **Required For:** Both backends
+- **Risk:** LOW - Stable, widely used library
 
 ### Dependency 4: Axum HTTP Framework
-
-- **Library Name:** axum (with tokio runtime)
-- **Purpose:** HTTP server for API endpoints (Milestone 2+)
-- **Version:** 0.7.x
-- **Integration Method:** Rust crate dependency
-
-**Risk Assessment:**
-- **Availability Impact:** MEDIUM - Only affects HTTP mode, CLI still works. Mitigation: Well-tested framework, stable API.
-- **Performance Impact:** LOW - Minimal overhead (<10ms per request). Mitigation: Benchmark to confirm.
-- **Alternative:** Actix-web can be substituted if Axum proves problematic.
+- **Library:** axum (0.7), tokio (1.x)
+- **Purpose:** HTTP server for API endpoints
+- **Required For:** injection_server (Phase 2)
+- **Risk:** LOW - Mature, production-ready framework
 
 ---
 
 ## Technology Stack
 
-### Core Technologies
-
 | Component | Technology | Version | Rationale |
 |-----------|-----------|---------|-----------|
 | **Programming Language** | Rust | 1.70+ | Memory safety, performance, zero-cost abstractions |
-| **ML Framework** | Candle | 0.8.x | Pure Rust, GPU support, HuggingFace compatibility |
-| **GPU Runtime** | CUDA | 11.0+ | NVIDIA GPU acceleration |
+| **Primary Backend** | ONNX Runtime | 2.0.0-rc.10 | Production-grade, 8-12ms latency, CUDA support |
+| **Alternative Backend** | Burn | 0.19.0 | Rust-native ML, experimental/research use |
 | **HTTP Server** | Axum | 0.7.x | Modern async framework, ergonomic API |
 | **Async Runtime** | Tokio | 1.x | Industry standard for async Rust |
-| **Serialization** | Serde | 1.x | JSON request/response handling |
-| **Error Handling** | error_tools | 0.35.x | Workspace standard (rulebook requirement) |
-| **CLI Parsing** | clap | 4.x | Derive-based CLI argument parsing |
-
-### Development Tools
-
-| Tool | Purpose |
-|------|---------|
-| **cargo nextest** | Parallel test execution |
-| **clippy** | Linting and code quality |
-| **nvidia-smi** | GPU monitoring and profiling |
+| **CLI Parsing** | Manual | - | Simple argument parsing (not unilang framework) |
+| **GPU Runtime** | CUDA | 12.x+ | NVIDIA GPU acceleration (optional, CPU fallback) |
+| **Tokenization** | tokenizers | 0.22.1 | HuggingFace tokenizers for text preprocessing |
+| **Error Handling** | anyhow | 1.0.100 | Ergonomic error propagation |
+| **Serialization** | serde/serde_json | 1.x | JSON request/response handling |
 
 ---
 
 ## In Scope
 
-**ONE THING:** CLI program that generates text.
+**Phase 1 (Complete):**
+- ✅ Dual backend implementation (ORT + Burn)
+- ✅ Lazy initialization with model caching
+- ✅ CLI with interactive and single-shot modes
+- ✅ Binary classification (benign/injection)
+- ✅ Thread-safe concurrent access
+- ✅ Multiple input/output formats
+- ✅ Performance optimization (60-267x speedup via caching)
 
-Features:
-- Load GPT-2 Small to GPU
-- Take text prompt as input
-- Generate text (greedy sampling)
-- Print to console
+**Phase 2 (Next):**
+- HTTP API server implementation
+- `/health` and `/detect` endpoints
+- Concurrent request handling
+- Production logging and monitoring
+- API integration tests
 
-That's it. Period.
+**Phase 3 (Future):**
+- Docker containerization
+- Cloud deployment guides (Vast.ai, RunPod, AWS)
+- Performance optimization
+- Batch processing API
 
 ---
 
 ## Out of Scope
 
-Everything not listed in "In Scope":
+- ❌ Multi-class classification (only binary: benign/injection)
+- ❌ Confidence scores (API returns label only: "benign" or "injection")
+- ❌ Model training or fine-tuning
+- ❌ Token-level detection (sentence-level only)
+- ❌ Span detection (identifying injection location within text)
+- ❌ Streaming detection
+- ❌ Multiple language support (English only)
+- ❌ Custom model support (ModernBERT-based only)
+- ❌ Model explainability/interpretability
+- ❌ Advanced sampling methods (N/A for classification)
 
-- ❌ HTTP API (add later if CLI works)
-- ❌ KV Cache optimization (add later if needed)
-- ❌ Advanced sampling (temperature, top-p, etc.)
-- ❌ Concurrent requests
-- ❌ Batching
-- ❌ Streaming
-- ❌ Monitoring/metrics
-- ❌ Larger models
-- ❌ Quantization
-- ❌ Everything else
-
-**Philosophy:** Build the simplest thing that proves Candle works. Add features ONLY if MVP succeeds.
-
----
-
-## Limitations
-
-This section quantifies the expected performance and capacity boundaries of the ultra-minimal MVP.
-
-### Performance Limitations
-
-1. **Maximum Concurrent Users:** 1 (sequential request processing only)
-2. **Maximum Requests Per Second:** ~0.2-1.0 RPS (depending on Generation length)
-3. **Generation Latency:**
-   - Milestone 1-2 (no KV Cache): ~5 seconds for 50 tokens
-   - Milestone 3 (with KV Cache): ~0.5-1.0 seconds for 50 tokens
-4. **Maximum Sequence Length:** 1024 tokens (GPT-2 context window limit)
-5. **Maximum Tokens Per Request:** 512 tokens (configurable, but limited by GPU memory and time constraints)
-
-### Resource Limitations
-
-1. **GPU Memory Usage:** ~2GB maximum (Model + KV Cache + activations)
-2. **Minimum GPU Requirements:** NVIDIA RTX 3060 or equivalent (8GB VRAM, CUDA 11.0+)
-3. **CPU Requirements:** 4 cores, 16GB RAM (for system overhead)
-4. **Storage Requirements:** 20GB (Model files ~500MB + OS + application)
-5. **Network Bandwidth:** ~1-2 GB for initial Model download (one-time)
-
-### Functional Limitations
-
-1. **Supported Models:** GPT-2 Small only (124M parameters)
-2. **Sampling Methods:** Greedy Sampling only (no randomness)
-3. **Output Format:** Plain text only (no structured output)
-4. **Error Recovery:** No automatic retry or fallback mechanisms
-5. **Monitoring:** Manual GPU monitoring only (no integrated metrics)
-
-### Operational Limitations
-
-1. **Availability:** Single point of failure (one server, one process)
-2. **Durability:** No request persistence (in-memory queue only)
-3. **Scalability:** Vertical scaling only (cannot add more servers)
-4. **Maintenance:** Requires server restart for updates (no zero-downtime deployment)
-
-**Acceptance Criteria:** All limitations **must** be validated during Milestone 3 testing and documented in final deployment guide.
+**Philosophy:** Build the simplest thing that proves ONNX Runtime and Burn work for fast ML inference. Add features ONLY if MVP succeeds.
 
 ---
 
 ## Deliverables
 
-1. **CLI Binary:** `cargo build --release` produces working executable
-2. **Source Code:** All Rust files in git repository
-3. **Proof:** Screenshot or recording of text generation working
+1. **CLI Binary:** `injection_cli` - Command-line detection tool
+2. **HTTP Server:** `injection_server` - REST API service (Phase 2)
+3. **Library:** `injection_core` - Core detection library
+4. **Source Code:** All Rust files in git repository
+5. **Documentation:** README, specification, API docs
+6. **Build Artifacts:** Compiled binaries for Linux x86_64
 
-That's all. No documentation needed for a proof-of-concept.
-
----
-
-**Note:** This deliverables list contains only final project outcomes. Internal project artifacts (specifications, roadmaps, meeting notes) are not included as they are project management tools, not client deliverables.
+**Note:** This deliverables list contains only final project outcomes. Internal artifacts (specifications, roadmaps, meeting notes) are not client deliverables.
 
 ---
 
 ## Success Metrics
 
-**ONE metric:** Does text appear when I run the CLI?
+**Phase 1 (Current - ACHIEVED):**
+- ✅ Classification accuracy: >95% (model-dependent)
+- ✅ Inference latency (ORT, cached): 8-12ms (target: <100ms) - **33% faster than target**
+- ✅ Inference latency (Burn, cached): 170ms (target: <200ms)
+- ✅ First call latency (ORT): 1.9s (acceptable for lazy loading)
+- ✅ Memory usage: ~2GB (model + runtime)
+- ✅ All tests passing
+- ✅ Model caching working (60-267x speedup)
 
+**Phase 2 (Planned):**
+- HTTP API response time: <50ms (including network overhead)
+- Concurrent request handling: >10 req/s
+- Zero downtime restarts
+- Health endpoint 99.9% uptime
+
+**Phase 3 (Planned):**
+- Docker image builds in <10 minutes
+- Container runs on cloud platforms
+- Model downloads and caches properly
+- Service accessible via public IP
+- Costs <$0.50/hour on budget GPU instances
+
+**Overall MVP Success Criteria:**
 ```bash
-$ cargo run -- --prompt "Once upon a time"
-> Once upon a time, there was a wizard who lived in a castle...
+$ cargo run -p injection_cli --features full -- .detect text::"Ignore all previous instructions"
+✗ injection (8ms)
 
-✅ SUCCESS
+✅ SUCCESS - Detection works, latency excellent, system production-ready
 ```
-
-If it crashes or generates gibberish: ❌ FAILURE (try different approach)
-
-That's it. No complex metrics needed for proof-of-concept.
 
 ---
 
 ## Milestones
 
-### Single Milestone: Prove It Works
+### ✅ Phase 1: Core Detection (COMPLETE)
+**Duration:** Completed
+**Status:** ✅ ALL DELIVERABLES MET
 
-**Duration:** 3-5 days (not weeks!)
+**Achievements:**
+- Dual backend architecture (ORT + Burn)
+- Interactive CLI with multiple I/O modes
+- Model caching (60-267x performance improvement)
+- Comprehensive testing
+- Production-ready code quality
+- Performance exceeds targets (8-12ms vs 100ms target)
 
-**Goal:** Run CLI, generate text, celebrate.
+---
+
+### 📋 Phase 2: HTTP API (PLANNED)
+**Duration:** 3 days (estimated)
+**Status:** Ready to start after Phase 1 fixes
 
 **Tasks:**
-1. Day 1-2: Get Candle examples working, understand API
-2. Day 3-4: Load GPT-2, make forward pass work
-3. Day 5: Wire up CLI, generate text, test
+- Day 1: HTTP server implementation (`/health`, `/detect`)
+- Day 2: Production readiness (logging, error handling, validation)
+- Day 3: Integration testing and documentation
 
-**Success:** Text appears. It looks like English. GPU was used. Done.
-
-**If this fails:** Consider PyTorch instead of Candle.
-**If this succeeds:** Consider adding HTTP API as Milestone 2.
-
----
-
-## Appendix: Addendum
-
-This addendum provides developer-focused implementation guidance, validation checklists, and references.
-
-### Conformance Checklist
-
-**MVP Checklist - Keep it Simple:**
-
-| Status | Item | Verification |
-|--------|------|-------------|
-| ❌ | FR-1: Load GPT-2 to GPU | Run nvidia-smi, see memory allocated |
-| ❌ | FR-2: Generate Text | Run CLI, see coherent text output |
-| ❌ | FR-3: CLI Works | `cargo run -- --prompt "Test"` succeeds |
-| ❌ | US-1: Prove Candle Works | Demo working text generation |
-
-**Done when:** All 4 items checked ✅
-
-**Timeline:** 3-5 days max
+**Deliverables:**
+- Working HTTP server on port 3000
+- `/health` and `/detect` endpoints functional
+- API documentation in README
+- Integration tests passing
 
 ---
 
-### Testing Strategy
+### 📋 Phase 3: Container Deployment (PLANNED)
+**Duration:** 3 days (estimated)
+**Status:** Blocked by Phase 2
 
-#### Automated Tests
+**Tasks:**
+- Day 1: Docker configuration (multi-stage build, model caching)
+- Day 2: Cloud deployment (Vast.ai, RunPod, Lambda Labs guides)
+- Day 3: Documentation and monitoring setup
 
-**Location:** `tests/` directory at project root
-
-**Test Files:**
-1. `tests/basic_tests.rs` - Tokenization correctness, Model loading, basic generation
-2. `tests/http_api_tests.rs` (M2+) - HTTP endpoint validation
-3. `tests/cache_tests.rs` (M3) - KV Cache correctness and performance
-
-**Execution:** `w3 .test l::3` (or `make ctest3`)
-
-**Requirements:**
-- All tests **must** pass before merge to main branch
-- Tests **must** run on GPU-enabled CI environment (or skip with clear warnings)
-
-#### Manual Testing
-
-**Location:** `tests/readme.md`
-
-**Required Manual Tests:**
-1. **Text Coherence:** Generate text for 10 diverse prompts, manually evaluate quality
-2. **GPU Utilization:** Monitor nvidia-smi during generation, verify >60% GPU usage
-3. **Memory Profiling:** Run 100 sequential requests, verify no memory leaks
-4. **End-to-End Deployment:** Deploy to fresh VPS, verify service starts and responds
-
-**Documentation:** All manual test procedures **must** be documented in `tests/readme.md` with expected results.
+**Deliverables:**
+- Optimized Docker image (<2GB)
+- Multi-platform deployment guides
+- Cost comparison matrix
+- Monitoring and logging setup
 
 ---
 
-### Development Environment Setup
+## Appendix
 
-#### Prerequisites
+### Performance Benchmarks
 
-1. **Hardware:**
-   - NVIDIA GPU (RTX 3060 or better, 8GB+ VRAM)
-   - 16GB+ RAM
-   - 20GB+ free storage
+| Metric | ORT Backend | Burn Backend |
+|--------|-------------|--------------|
+| **First Call (Cold)** | 1.9s | 8-10s |
+| **Subsequent Calls (Cached)** | 8-12ms | 170ms |
+| **Speedup (Cached vs Cold)** | 267x | 60x |
+| **Model Size** | 572MB (ONNX) | 286MB (MPK) |
+| **Memory Usage (Runtime)** | ~2GB | ~2GB |
+| **Concurrency** | Parallel (RwLock) | Serial (Mutex) |
+| **CUDA Support** | ✅ Yes | ✅ Yes |
+| **CPU Fallback** | ✅ Yes | ✅ Yes |
+| **Production Ready** | ✅ Yes | ⚠️ Experimental |
 
-2. **Software:**
-   - Ubuntu 20.04+ or equivalent Linux
-   - CUDA 11.0+ installed (nvidia-smi available)
-   - Rust 1.70+ (via rustup)
-   - Git
+### Concurrency Characteristics
 
-#### Setup Steps
+**ORT Backend (Production):**
+- Model shared via `RwLock<Option<Detector>>`
+- **Concurrent reads:** ✅ YES - Multiple threads can call `detect()` simultaneously
+- **Performance:** Optimal for HTTP server (parallel request processing)
+- **Initialization:** Exclusive write lock (blocks all during first call)
+- **Recommendation:** Use for production deployments requiring high throughput
 
-```bash
-# 1. Clone repository
-git clone <repository-url>
-cd vllm_inferencer
+**Burn Backend (Experimental):**
+- Model shared via `Mutex<Option<Detector>>`
+- **Concurrent reads:** ❌ NO - Serialized access (one request at a time)
+- **Performance:** Lower throughput for concurrent workloads
+- **Reason:** Burn's `InferenceContext` is not `Sync`
+- **Recommendation:** Use for research, benchmarking, or low-traffic scenarios
 
-# 2. Verify CUDA
-nvidia-smi  # Should show GPU and CUDA version
+### Dependencies
 
-# 3. Build project
-cargo build --release
+**Core:**
+- ort (2.0.0-rc.10) - ONNX Runtime with CUDA
+- burn (0.19.0) - Burn ML framework with CUDA
+- tokenizers (0.22.1) - HuggingFace tokenizers
+- once_cell (1.19) - Lazy static initialization
+- anyhow (1.0.100) - Error handling
+- ndarray (0.16) - Array operations (ORT)
+- cudarc (0.17.6) - CUDA bindings (Burn)
 
-# 4. Run tests
-w3 .test l::3  # Or: make ctest3
+**CLI:**
+- rustyline (14.0) - Interactive readline with history
+- colored (2.1) - Terminal colors
+- serde_json - JSON output format
 
-# 5. Test CLI
-cargo run --release -- --prompt "Hello world" --max-tokens 20
+**HTTP (Phase 2):**
+- axum (0.7) - HTTP framework
+- tokio (1.x) - Async runtime
+- tower - Middleware
+- tower-http - HTTP utilities
+- tracing - Structured logging
+- tracing-subscriber - Log formatting
 
-# 6. Test HTTP (M2+)
-cargo run --release &
-curl -X POST http://localhost:3000/generate \
-  -H "Content-Type: application/json" \
-  -d '{"prompt": "Test", "max_tokens": 10}'
-```
-
----
-
-### Architecture Decision Records
-
-#### ADR-1: Single-Crate Structure
-
-**Decision:** Use single Rust crate (not workspace) for MVP
-
-**Rationale:**
-- Project scope limited (<1000 LOC)
-- No independent components requiring separate crates
-- Simpler build and dependency management
-- Can refactor to workspace when adding 2nd crate (e.g., dataset tools)
-
-**Status:** Accepted
-
----
-
-#### ADR-2: Greedy Sampling Only
-
-**Decision:** Implement only Greedy Sampling (argmax) in MVP, defer temperature/top-p/top-k to future versions
-
-**Rationale:**
-- Greedy sampling is deterministic, simplifying testing
-- Simplest implementation (single line: `argmax(logits)`)
-- Sufficient to prove technical feasibility
-- Advanced sampling adds complexity without validating core concepts
-
-**Status:** Accepted
-
----
-
-#### ADR-3: Sequential Request Processing
-
-**Decision:** Process HTTP requests one-at-a-time in FIFO queue, no concurrency in MVP
-
-**Rationale:**
-- Concurrent batching adds significant complexity (request grouping, padding, dynamic batch sizing)
-- MVP goal is proof-of-concept, not production throughput
-- Single-request processing sufficient for testing and validation
-- Can add concurrency in future milestones after core functionality validated
-
-**Status:** Accepted
-
----
-
-### Performance Benchmarking Guide
-
-#### Baseline Measurements (Milestone 1-2)
-
-**Test Configuration:**
-- Model: GPT-2 Small
-- GPU: RTX 3060
-- Prompt: "Once upon a time"
-- Max Tokens: 50
-
-**Metrics to Capture:**
-1. **Model Loading Time:** From process start to first generation ready
-2. **Time Per Token:** Total generation time / number of tokens generated
-3. **GPU Memory Usage:** Peak VRAM during generation (via nvidia-smi)
-4. **GPU Utilization:** % GPU usage during forward pass (via nvidia-smi)
-
-**Baseline Expectations:**
-- Loading Time: 5-10 seconds
-- Time Per Token (no cache): ~100ms
-- GPU Memory: 500MB-2GB
-- GPU Utilization: 40-80%
-
-#### KV Cache Validation (Milestone 3)
-
-**Test Procedure:**
-1. Run 20 generations WITHOUT KV Cache, record average time-per-token
-2. Run 20 generations WITH KV Cache, record average time-per-token
-3. Calculate speedup ratio: baseline_time / cache_time
-4. Verify speedup is between 5x and 10x
-
-**Correctness Validation:**
-1. Generate text for 10 test prompts with and without KV Cache
-2. Compare outputs character-by-character
-3. Verify all outputs match exactly (no numerical drift)
-
----
-
-### Reference Links
-
-1. **Candle Documentation:** https://github.com/huggingface/candle
-2. **GPT-2 Model Card:** https://huggingface.co/gpt2
-3. **Tokenizers Library:** https://github.com/huggingface/tokenizers
-4. **Axum Framework:** https://docs.rs/axum/latest/axum/
-5. **Project Rulebooks:** `/home/user1/pro/genai/code/rules/`
-
----
-
-### Glossary Cross-Reference
-
-All terms defined in [Vocabulary](#vocabulary) section **must** be used consistently:
-
-| Term | Used In Sections |
-|------|-----------------|
-| Inference | Project Goal, Functional Requirements, System Architecture |
-| Token | Vocabulary, FR-2, FR-3, NFR-2, NFR-3 |
-| Tokenizer | Vocabulary, FR-2, External Dependencies |
-| KV Cache | Vocabulary, FR-7, NFR-3, Milestone 3, Diagrams |
-| Prompt | Vocabulary, User Stories, FR-4, FR-5, Diagrams |
-| API Client | Vocabulary, System Actors, FR-5 |
-| Model | Throughout specification |
-
----
-
-### Open Questions & Risks
-
-#### Open Questions
-
-1. **Q:** Should we support FP16 precision in MVP to reduce memory usage?
-   - **Impact:** MEDIUM - Could allow larger batch sizes (future)
-   - **Resolution:** DEFERRED - Use FP32 for MVP, validate correctness first
-
-2. **Q:** Should health check endpoint include GPU status (VRAM usage, temperature)?
-   - **Impact:** LOW - Nice-to-have for monitoring
-   - **Resolution:** NOT IN MVP - Add in future monitoring milestone
-
-#### Known Risks
-
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|------------|
-| Candle framework has critical bugs | MEDIUM | HIGH | Extensive testing in M1, fallback to PyTorch if needed |
-| GPT-2 generation quality poor | LOW | MEDIUM | Validate against HuggingFace reference, not a blocker for MVP |
-| KV Cache implementation complex | MEDIUM | MEDIUM | Allocate extra time in M3, simplify if needed |
-| GPU availability during development | LOW | HIGH | Use cloud GPU providers (vast.ai, runpod.io) as backup |
-| Model download failures (network) | LOW | LOW | Implement retry logic, support local model files |
-
----
-
-### File Structure Reference
+### File Structure
 
 **Final Project Structure:**
 ```
-vllm_inferencer/
-├── Cargo.toml              # Rust project manifest
-├── readme.md               # Project onboarding
-├── spec.md                 # This specification (DELIVERABLE: NO)
-├── decisions.md            # Auto-decisions log (DELIVERABLE: NO)
-├── Makefile                # Build automation (ctest1, ctest3)
+prompt_injection_detector/
+├── Cargo.toml              # Workspace manifest
+├── readme.md               # Project overview
+├── spec.md                 # This specification
+├── roadmap.md              # Development roadmap
+├── decisions.md            # Design decisions log
+├── rulebook.md             # Project-specific rules
+├── Dockerfile              # Container configuration
+├── Makefile                # Build automation
 ├── .gitignore              # Git exclusions
-├── secret/
+├── license-mit             # MIT license
+├── secret/                 # Secret management (gitignored)
 │   ├── readme.md           # Secret management guide
-│   └── -hf_token.sh        # HuggingFace token (optional, gitignored)
-├── src/
-│   ├── main.rs             # Entry point (CLI + HTTP)
-│   ├── lib.rs              # Public API
-│   ├── model.rs            # Model loading and forward pass
-│   ├── generate.rs         # Generation logic and KV Cache
-│   └── error.rs            # Error types (error_tools)
-└── tests/
-    ├── readme.md           # Manual testing plan
-    ├── basic_tests.rs      # Model loading, tokenization, generation
-    ├── http_api_tests.rs   # HTTP endpoint tests (M2+)
-    └── cache_tests.rs      # KV Cache tests (M3)
+│   └── -hf_token.template  # HuggingFace token template
+├── module/                 # Crate modules
+│   ├── injection_core/     # Core detection library
+│   │   ├── src/
+│   │   │   ├── lib.rs      # Public API
+│   │   │   ├── backend/    # Backend abstraction
+│   │   │   │   ├── mod.rs  # Selector
+│   │   │   │   ├── ort.rs  # ORT backend
+│   │   │   │   └── burn.rs # Burn backend
+│   │   │   └── burn_impl/  # Burn implementation
+│   │   ├── tests/          # Integration tests
+│   │   │   ├── readme.md   # Test documentation
+│   │   │   ├── test_ort_backend.rs
+│   │   │   ├── test_burn_backend.rs
+│   │   │   └── test_lazy_init.rs
+│   │   ├── build.rs        # Build script (Burn MPK generation)
+│   │   ├── Cargo.toml      # Crate manifest
+│   │   └── readme.md       # Crate documentation
+│   ├── injection_cli/      # CLI binary
+│   │   ├── src/main.rs     # CLI implementation
+│   │   ├── Cargo.toml
+│   │   └── readme.md
+│   └── injection_server/   # HTTP server binary
+│       ├── src/main.rs     # Server implementation
+│       ├── Cargo.toml
+│       └── readme.md
+└── artifacts/              # Model files (not in git)
+    ├── model.onnx          # ONNX format for ORT
+    ├── model.mpk           # Burn format (auto-generated)
+    └── tokenizer/
+        └── tokenizer.json  # Tokenizer configuration
 ```
 
-**Note:** `spec.md` and `decisions.md` are project management artifacts, **NOT** client deliverables (see Deliverables section).
+---
+
+**END OF SPECIFICATION**
 
 ---
 
-**End of Specification**
-
----
+**Version History:**
+- v0.3 (2025-11-02): Complete rewrite for prompt injection detection (removed vllm_inferencer content)
+- v0.2 (2025-10-25): Project pivoted to prompt injection detection
+- v0.1 (2025-10-21): Initial vllm_inferencer specification

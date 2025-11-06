@@ -235,3 +235,152 @@ This file records all automatic decisions made during the specification creation
 **Goal:** Prove Candle works. That's it.
 
 ---
+
+## Decision 10: Project Pivot - vLLM to Prompt Injection Detection
+
+**Date:** 2025-10-25
+**Category:** Scope
+
+**Context:** User requested pivot from vLLM text generation to prompt injection detection using ProtectAI's DeBERTa model.
+
+**Options Considered:**
+1. **Continue with vLLM inference project**
+   - Pros: Foundation already laid, clear roadmap
+   - Cons: Not aligned with new requirements
+2. **Pivot to prompt injection detection**
+   - Pros: Addresses real security need, uses proven model (95%+ accuracy)
+   - Cons: Requires project restructuring, new technology stack
+3. **Hybrid approach (vLLM + injection detection)**
+   - Pros: Maximum flexibility
+   - Cons: Scope creep, complexity
+
+**Selected:** Option 2 - Complete pivot to prompt injection detection
+
+**Rationale:**
+- User explicitly requested change to prompt injection detection task
+- ProtectAI's deberta-v3-base-prompt-injection-v2 is production-ready (95.25% accuracy)
+- Prompt injection is a critical security concern for LLM applications
+- Foundation work (workspace structure, feature gates) still applicable
+- ONNX Runtime provides faster inference than Candle for this use case
+
+**Impact:**
+- Model: GPT-2 Small → DeBERTa-v3-base (200M params)
+- Framework: Candle → ONNX Runtime
+- Task: Text generation → Binary classification
+- Output: Generated text → Label + confidence score
+- Final milestone: KV Cache optimization → Container deployment (Vast.ai)
+
+---
+
+## Decision 11: ONNX Runtime over Candle
+
+**Date:** 2025-10-25
+**Category:** Technology Stack
+
+**Context:** User feedback indicated Candle is "too slow" for inference requirements.
+
+**Options Considered:**
+1. **Continue with Candle framework**
+   - Pros: Pure Rust, already planned
+   - Cons: Performance concerns, slower inference
+2. **Use ONNX Runtime**
+   - Pros: Production-grade, optimized inference, broad hardware support
+   - Cons: External dependency, C++ bindings
+3. **PyTorch via tch-rs bindings**
+   - Pros: Mature, extensive ecosystem
+   - Cons: Heavy dependency, complex setup
+
+**Selected:** Option 2 - ONNX Runtime
+
+**Rationale:**
+- User explicitly stated Candle is too slow
+- ONNX Runtime is industry standard for production ML inference
+- ProtectAI model available in ONNX format
+- Superior performance optimization (graph optimization, kernel fusion)
+- Strong Rust bindings via `ort` crate
+- Supports both CPU and GPU inference
+- Smaller deployment footprint than PyTorch
+
+**Impact:**
+- Replaced candle-* dependencies with `ort = "1.16"`
+- Model format: PyTorch checkpoint → ONNX model
+- Inference API: Candle tensors → ONNX sessions
+- Expected performance improvement: 5-10x faster than Candle
+
+---
+
+## Decision 12: Unilang CLI Framework
+
+**Date:** 2025-10-25
+**Category:** CLI Interface
+
+**Context:** Need robust CLI framework for prompt injection detection tool.
+
+**Options Considered:**
+1. **Manual argument parsing (current approach)**
+   - Pros: Simple, no dependencies
+   - Cons: Limited features, manual validation
+2. **Clap (most popular Rust CLI)**
+   - Pros: Feature-rich, derive macros, great docs
+   - Cons: Generic, not command-focused
+3. **Unilang (command framework)**
+   - Pros: Command-centric design, compile-time optimization, 10-50x faster lookups
+   - Cons: Less mainstream, smaller ecosystem
+
+**Selected:** Option 3 - Unilang
+
+**Rationale:**
+- User specifically mentioned unilang crate requirement
+- Perfect Hash Function (PHF) provides O(1) command lookups
+- Command-centric design aligns with `.detect`, `.batch` pattern
+- Compile-time validation prevents runtime errors
+- Zero-cost abstractions fit project philosophy
+- Can aggregate multiple command modules for extensibility
+
+**Impact:**
+- Added `unilang = "0.30"` dependency
+- CLI syntax: `cargo run -- .detect text::"input"`
+- Future extensibility for batch processing commands
+- Performance improvement for command resolution
+
+---
+
+## Decision 13: Container Deployment as Final Milestone
+
+**Date:** 2025-10-25
+**Category:** Deployment
+
+**Context:** User requested container deployment (Vast.ai, NVIDIA Docker) as final milestone.
+
+**Options Considered:**
+1. **Skip containerization (local deployment only)**
+   - Pros: Simpler, faster MVP
+   - Cons: Not production-ready, manual deployment
+2. **Add Docker as optional extra**
+   - Pros: Flexibility
+   - Cons: Incomplete solution
+3. **Make container deployment Phase 3 milestone**
+   - Pros: Production-ready deliverable, cloud deployment support
+   - Cons: Additional complexity, longer timeline
+
+**Selected:** Option 3 - Phase 3 milestone with full deployment support
+
+**Rationale:**
+- User explicitly requested Vast.ai and NVIDIA Docker deployment
+- Container deployment is essential for production ML services
+- Vast.ai provides cost-effective GPU instances for inference
+- Docker ensures consistent environment across deployments
+- NVIDIA Docker enables GPU acceleration in containers
+- Multi-platform support (Vast.ai, RunPod, Lambda Labs) increases flexibility
+
+**Deliverables:**
+- Optimized Dockerfile with multi-stage builds
+- Vast.ai deployment template and documentation
+- Alternative platform guides (RunPod, Lambda Labs)
+- Cost estimation and performance tuning guides
+
+**Timeline Impact:**
+- Added 3 days (Phase 3)
+- Total project: 11 days (5 + 3 + 3)
+
+---
